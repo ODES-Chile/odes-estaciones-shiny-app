@@ -1,0 +1,13 @@
+name: obssa-chile
+title: obssa-chile
+username:
+account: jbkunst
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5844492
+bundleId: 5679195
+url: https://jbkunst.shinyapps.io/obssa-chile/
+when: 1647221871.28793
+lastSyncTime: 1647221871.28793
+asMultiple: FALSE
+asStatic: FALSE
