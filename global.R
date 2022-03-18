@@ -3,6 +3,7 @@ library(tidyverse)
 library(bslib)
 library(leaflet)
 library(highcharter)
+# remotes::install_github("jbkunst/highcharter")
 
 # options -----------------------------------------------------------------
 theme_obbsa <-  bs_theme(

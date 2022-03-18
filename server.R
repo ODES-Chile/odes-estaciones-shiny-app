@@ -15,29 +15,65 @@ function(input, output, session) {
   output$chart <- renderHighchart({
 
     highchart() %>%
-      hc_add_series(data = ts(1:10), id = "data") %>%
-      hc_xAxis(type = "datetime")
+      hc_add_series(data = ts(1), id = "data", showInLegend = FALSE) %>%
+      hc_xAxis(type = "datetime") %>%
+      hc_credits(enabled = TRUE, text = "", href = "")
 
   })
 
-  # data/valores para colorear las estaciones/circulos
-  data_markers <- reactive({
+  data_variable <- reactive({
 
-    data_markers <- dtiempo %>%
+    data_variable <- ddefvars %>%
+      filter(Name == input$color) %>%
+      as.list()
+
+    data_variable
+
+  })
+
+  # data que depende de la variable y valor
+  data_transformada <- reactive({
+
+    data_transformada <- dtiempo %>%
       filter(var == input$color) %>%
+      # ACA FALTA LA TRANSFORMACION "VALOR"
       group_by(station) %>%
-      filter(tiempo == max(tiempo)) %>%
       ungroup() %>%
       left_join(
         destaciones %>% select(latitud, longitud, station = nombre, identificador), by = "station"
-        ) %>%
+      ) %>%
       arrange(latitud, longitud)
+
+    data_transformada
+
+  })
+
+  # filtra data_transformada por la estacion
+  data_transformada_estacion <- reactive({
+
+    data_transformada <- data_transformada()
+
+    data_transformada_estacion <- data_transformada %>%
+      filter(identificador == input$station)
+
+    data_transformada_estacion
+
+  })
+
+  # filtra data_transformada por el ultimo registro
+  data_markers <- reactive({
+
+    data_transformada <- data_transformada()
+
+    data_markers <- data_transformada %>%
+      group_by(identificador) %>%
+      filter(tiempo == max(tiempo))
 
     data_markers
 
   })
 
-  # observer que mira variable y valor para modificar estaciones
+  # observer escucha variable y valor para modificar estaciones/markers
   observe({
 
     # message(input$color)
@@ -53,22 +89,32 @@ function(input, output, session) {
 
     radius <- scales::rescale(data_markers[["valor"]], to = c(1000, 20000))
 
+    data_variable <- data_variable()
+
     leafletProxy("map", data = data_markers) %>%
       clearShapes() %>%
       addCircles(
-        ~longitud, ~latitud , radius = radius,
-        layerId = ~identificador,
-        stroke=FALSE, fillOpacity=0.6,
-        fillColor=pal(colorData)
+        ~longitud,
+        ~ latitud ,
+        radius = radius,
+        layerId = ~ identificador,
+        stroke = FALSE,
+        fillOpacity = 0.6,
+        fillColor = pal(colorData)
         ) %>%
       addLegend(
         # "bottomleft",
         "topright",
-        pal = pal, values = colorData, title = colorBy,
-        layerId="colorLegend"
+        pal = pal,
+        values = colorData,
+        title = data_variable$Symbol,
+        # labFormat = labelFormat(suffix = ),
+        layerId = "colorLegend"
         )
   })
 
+  # observer que ve en que estación se hace click y cambia
+  # el selector de estaciones "station"
   observeEvent(input$map_shape_click, {
 
     # print(input$map_shape_click)
@@ -81,12 +127,14 @@ function(input, output, session) {
 
   })
 
+  # dado el cambio de estacion centrar el mapa en la ubicación de la estacion
   observeEvent(input$station, {
 
     # message(input$station)
 
     if(input$station == "") return(TRUE)
 
+    # leaflet
     coords <- destaciones %>%
       filter(identificador == input$station) %>%
       select(longitud, latitud) %>%
@@ -95,7 +143,41 @@ function(input, output, session) {
       as.list()
 
     leafletProxy("map") %>%
-      flyTo(lng = coords$longitud, lat = coords$latitud, zoom = 5)
+      flyTo(lng = coords$longitud, lat = coords$latitud, zoom = 7)
 
   })
+
+  # observa si cambia la data estacion para modificar chart
+  observe({
+
+    data_transformada_estacion <- data_transformada_estacion()
+
+    data_variable <- data_variable()
+
+    datos <- data_transformada_estacion %>%
+      select(x = tiempo, y = valor) %>%
+      mutate(x = datetime_to_timestamp(x), y = round(y, 2))
+
+    highchartProxy("chart") %>%
+      hcpxy_update_series(
+        id = "data",
+        data = list_parse2(datos),
+        name = data_variable$Description
+      ) %>%
+      hcpxy_update(
+        # tooltip = list(),
+        yAxis = list(
+          labels = list(
+            format = str_glue("{{value}} { symbol }", symbol = data_variable$Symbol)
+            )
+          ),
+        credits = list(
+          text = data_variable$Description
+          )
+      )
+
+
+
+  })
+
 }

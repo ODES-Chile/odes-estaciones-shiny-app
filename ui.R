@@ -48,11 +48,11 @@ page_navbar(
           conditionalPanel(
             "input.showchart",
             "Grafico (texto dummy)",
-            highchartOutput("chart", width = "500px")
+            # "hchart va en 2do contitaion panel",
+            highchartOutput("chart", width = "500px"),
+
           ),
         )
-
-
 
       ),
 
