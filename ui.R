@@ -27,16 +27,32 @@ page_navbar(
 
         h5("Panel de control"),
 
-        selectInput("color", "Variable", vars),
-        selectInput("value",   "Valor", values),
+        selectInput("color", "Variable", opt_variable),
 
-        checkboxInput("showchart", "Mostrar serie histórica"),
+        selectInput("value", "Valor", opt_valores),
+
+        selectizeInput(
+          "station",
+          "Estación",
+          opt_estaciones,
+          options = list(
+            placeholder = "Seleccionar estación",
+            onInitialize = I('function() { this.setValue(""); }')
+            )
+          ),
 
         conditionalPanel(
-          "input.showchart",
-          "Grafico (texto dummy)",
-          highchartOutput("chart", width = "500px")
-        ),
+          # "false",
+          "input.station != ''",
+          checkboxInput("showchart", "Mostrar detalle estacion histórica"),
+          conditionalPanel(
+            "input.showchart",
+            "Grafico (texto dummy)",
+            highchartOutput("chart", width = "500px")
+          ),
+        )
+
+
 
       ),
 
