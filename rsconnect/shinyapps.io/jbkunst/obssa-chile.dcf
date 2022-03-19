@@ -5,9 +5,9 @@ account: jbkunst
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5844492
-bundleId: 5703567
+bundleId: 5703692
 url: https://jbkunst.shinyapps.io/obssa-chile/
-when: 1647721487.94985
-lastSyncTime: 1647721487.94985
+when: 1647726118.66895
+lastSyncTime: 1647726118.66895
 asMultiple: FALSE
 asStatic: FALSE
