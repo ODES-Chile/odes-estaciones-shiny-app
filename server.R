@@ -7,7 +7,14 @@ function(input, output, session) {
 
     leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
       # addTiles() %>%
+
       addProviderTiles(providers$CartoDB.Positron) %>%
+
+      # addTiles(
+      #   urlTemplate = "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
+      #   attribution = '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      # ) %>%
+
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") %>%
       setView(lng =  -70.64827, lat = -33.45694, zoom = 6)
   })
@@ -22,6 +29,7 @@ function(input, output, session) {
 
   })
 
+  # reactivo de informacion de variable seleccionada
   data_variable <- reactive({
 
     data_variable <- ddefvars %>%
@@ -94,13 +102,31 @@ function(input, output, session) {
 
     leafletProxy("map", data = data_markers) %>%
       clearShapes() %>%
-      addCircles(
+      # addCircles(
+      addCircleMarkers(
         ~longitud,
-        ~ latitud ,
-        radius = radius,
+        ~ latitud,
+        # radius = radius,
+        label = ~htmltools::htmlEscape(station),
+
+        labelOptions = labelOptions(
+          # offset = c(-20, -20),
+          style = list(
+            # "color" = "red",
+            # "font-family" = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";',
+            "font-family" = "Roboto",
+            # "font-style" = "italic",
+            "box-shadow" = "2px 2px rgba(0,0,0,0.15)",
+            "font-size" = "12px",
+            "border-color" = "rgba(0,0,0,0.15)"
+            )
+
+        ),
+
+
         layerId = ~ identificador,
         stroke = FALSE,
-        fillOpacity = 0.6,
+        fillOpacity = 0.8,
         fillColor = pal(colorData)
         ) %>%
       addLegend(
@@ -116,14 +142,16 @@ function(input, output, session) {
 
   # observer que ve en que estación se hace click y cambia
   # el selector de estaciones "station"
-  observeEvent(input$map_shape_click, {
+  # observeEvent(input$map_shape_click, {
+  observeEvent(input$map_marker_click, {
 
-    # print(input$map_shape_click)
+    print(input$map_shape_click)
+    print(input$map_marker_click)
 
     updateSelectizeInput(
       session,
       inputId = "station",
-      selected =  input$map_shape_click$id
+      selected =  input$map_marker_click$id
       )
 
   })
