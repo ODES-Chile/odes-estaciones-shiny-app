@@ -4,11 +4,12 @@ function(input, output, session) {
 
   # mapa principal
   output$map <- renderLeaflet({
+
     leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-      addTiles() %>%
+      # addTiles() %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") %>%
       setView(lng =  -70.64827, lat = -33.45694, zoom = 6)
-
   })
 
   # grafico detalle
@@ -162,6 +163,8 @@ function(input, output, session) {
       hcpxy_update_series(
         id = "data",
         data = list_parse2(datos),
+        color = parametros$color,
+        lineWidth = 0.5,
         name = data_variable$Description
       ) %>%
       hcpxy_update(

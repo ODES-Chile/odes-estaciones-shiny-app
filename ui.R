@@ -23,17 +23,18 @@ page_navbar(
         class = "panel panel-default",
         fixed = TRUE, draggable = FALSE,
         width = "auto", height = "auto",
-        top = 77 + 30, left = 20, right = "auto", bottom = "auto",
+        top = 77 + 10, left = 10,
+        right = "auto", bottom = "auto",
 
-        h5("Panel de control"),
+        h6("Panel de control"),
 
-        selectInput("color", "Variable", opt_variable),
+        selectInput("color", tags$small("Variable"), opt_variable),
 
-        selectInput("value", "Valor", opt_valores),
+        selectInput("value", tags$small("Valor"), opt_valores),
 
         selectizeInput(
           "station",
-          "Estación",
+          tags$small("Estación"),
           opt_estaciones,
           options = list(
             placeholder = "Seleccionar estación",
@@ -47,9 +48,8 @@ page_navbar(
           checkboxInput("showchart", "Mostrar detalle estacion histórica"),
           conditionalPanel(
             "input.showchart",
-            "Grafico (texto dummy)",
             # "hchart va en 2do contitaion panel",
-            highchartOutput("chart", width = "500px"),
+            highchartOutput("chart", width = "400px", height = "250px"),
 
           ),
         )

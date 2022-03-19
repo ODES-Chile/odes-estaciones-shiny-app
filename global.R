@@ -6,12 +6,22 @@ library(highcharter)
 # remotes::install_github("jbkunst/highcharter")
 
 # options -----------------------------------------------------------------
+# parametros <- list(
+#   color = "#236478"
+# )
+
 theme_obbsa <-  bs_theme(
   # bg = "white",
   # fg = "#236478",
   # primary = "black",
   # bootswatch = "yeti",
   base_font = font_google("IBM Plex Sans")
+)
+
+options(
+  highcharter.theme = hc_theme_smpl(
+    # colors = parametros$color
+  )
 )
 
 # theme <- bs_add_rules(
