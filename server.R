@@ -164,7 +164,6 @@ function(input, output, session) {
         id = "data",
         data = list_parse2(datos),
         color = parametros$color,
-        lineWidth = 0.5,
         name = data_variable$Description
       ) %>%
       hcpxy_update(

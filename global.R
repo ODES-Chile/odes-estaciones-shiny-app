@@ -6,9 +6,9 @@ library(highcharter)
 # remotes::install_github("jbkunst/highcharter")
 
 # options -----------------------------------------------------------------
-# parametros <- list(
-#   color = "#236478"
-# )
+parametros <- list(
+  color = "#236478"
+)
 
 theme_obbsa <-  bs_theme(
   # bg = "white",
