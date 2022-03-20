@@ -30,6 +30,14 @@ div.outer {
   transition-delay: 0;
 }
 
+#controls > .form-group {
+  margin-bottom: 0rem;
+}
+
+#controls > label {
+  margin-bottom: 0rem;
+}
+
 /* Position and style citation */
 #cite {
   position: absolute;

@@ -7,7 +7,8 @@ library(highcharter)
 
 # options -----------------------------------------------------------------
 parametros <- list(
-  color = "#236478"
+  color = "#236478",
+  font_family = "IBM Plex Sans"
 )
 
 theme_obbsa <-  bs_theme(
@@ -19,7 +20,9 @@ theme_obbsa <-  bs_theme(
 )
 
 options(
-  highcharter.theme = hc_theme_smpl(
+  highcharter.theme = hc_theme(
+    color = parametros$color,
+    chart = list(style = list(fontFamily = parametros$font_family))
     # colors = parametros$color
   )
 )

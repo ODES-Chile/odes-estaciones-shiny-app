@@ -23,7 +23,7 @@ function(input, output, session) {
   output$chart <- renderHighchart({
 
     highchart() %>%
-      hc_add_series(data = ts(1), id = "data", showInLegend = FALSE) %>%
+      hc_add_series(data = NULL, id = "data", showInLegend = FALSE) %>%
       hc_xAxis(type = "datetime") %>%
       hc_credits(enabled = TRUE, text = "", href = "")
 
@@ -86,19 +86,22 @@ function(input, output, session) {
   observe({
 
     # message(input$color)
-    colorBy <- input$color
+    # colorBy <- input$color
     # sizeBy <- input$size
 
-    data_markers <- data_markers()
-
-    data_markers
-
-    colorData <- data_markers[["valor"]]
-    pal <- colorBin("viridis", colorData, 7, pretty = FALSE)
-
-    radius <- scales::rescale(data_markers[["valor"]], to = c(1000, 20000))
+    data_markers  <- data_markers()
 
     data_variable <- data_variable()
+
+    # crear label
+    data_markers <- data_markers %>%
+      mutate(lbl = str_glue("{ station }:<br/> {round(valor, 2)} { data_variable$Symbol }"))
+
+    colorData <- data_markers[["valor"]]
+
+    pal <- colorBin("viridis", colorData, 5, pretty = TRUE)
+
+    # radius <- scales::rescale(data_markers[["valor"]], to = c(1000, 20000))
 
     leafletProxy("map", data = data_markers) %>%
       clearShapes() %>%
@@ -107,23 +110,19 @@ function(input, output, session) {
         ~longitud,
         ~ latitud,
         # radius = radius,
-        label = ~htmltools::htmlEscape(station),
+        # https://stackoverflow.com/a/43155126/829971
+        label = ~lapply(data_markers$lbl, htmltools::HTML),
+        # label = ~htmltools::htmlEscape(lbl),
 
         labelOptions = labelOptions(
           # offset = c(-20, -20),
           style = list(
-            # "color" = "red",
-            # "font-family" = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";',
-            "font-family" = "Roboto",
-            # "font-style" = "italic",
+            "font-family" = parametros$font_family,
             "box-shadow" = "2px 2px rgba(0,0,0,0.15)",
             "font-size" = "12px",
             "border-color" = "rgba(0,0,0,0.15)"
             )
-
         ),
-
-
         layerId = ~ identificador,
         stroke = FALSE,
         fillOpacity = 0.8,
@@ -145,8 +144,8 @@ function(input, output, session) {
   # observeEvent(input$map_shape_click, {
   observeEvent(input$map_marker_click, {
 
-    print(input$map_shape_click)
-    print(input$map_marker_click)
+    # print(input$map_shape_click)
+    # print(input$map_marker_click)
 
     updateSelectizeInput(
       session,
