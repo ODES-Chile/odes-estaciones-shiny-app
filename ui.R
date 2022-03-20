@@ -68,8 +68,7 @@ page_navbar(
 
   bslib::nav(
     "Acerca",
-    "Auxiliares",
-    sparkline(sample(10))
+    "Auxiliares"
   )
 
 )
