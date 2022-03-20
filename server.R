@@ -95,7 +95,10 @@ function(input, output, session) {
 
     # crear label
     data_markers <- data_markers %>%
-      mutate(lbl = str_glue("{ station }:<br/> {round(valor, 2)} { data_variable$Symbol }"))
+      mutate(
+        # spark = map_chr(valor, function(x){ as.character(htmltools::tagList(sparkline(sample(20), width = 100))) }),
+        lbl = str_glue("{ station }:<br/> {round(valor, 2)} { data_variable$Symbol }")
+        )
 
     colorData <- data_markers[["valor"]]
 
@@ -119,11 +122,12 @@ function(input, output, session) {
           style = list(
             "font-family" = parametros$font_family,
             "box-shadow" = "2px 2px rgba(0,0,0,0.15)",
-            "font-size" = "12px",
+            "font-size" = "15px",
+            "padding" = "15px",
             "border-color" = "rgba(0,0,0,0.15)"
             )
         ),
-        layerId = ~ identificador,
+        layerId = ~identificador,
         stroke = FALSE,
         fillOpacity = 0.8,
         fillColor = pal(colorData)
