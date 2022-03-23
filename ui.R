@@ -28,9 +28,11 @@ page_navbar(
 
         h6("Panel de control"),
 
-        selectInput("color", tags$small("Variable"), opt_variable),
+        selectInput("variable", tags$small("Variable"), opt_variable),
 
-        selectInput("value", tags$small("Valor"), opt_valores),
+        selectInput("group", tags$small("Agrupación temporal"), opt_group),
+
+        selectInput("stat", tags$small("Estadístico (cálculo)"), opt_stat),
 
         selectizeInput(
           "station",
@@ -49,7 +51,7 @@ page_navbar(
           conditionalPanel(
             "input.showchart",
             # "hchart va en 2do contitaion panel",
-            highchartOutput("chart", width = "400px", height = "250px"),
+            highchartOutput("chart", width = "100%", height = "250px"),
 
           ),
         )
@@ -57,7 +59,7 @@ page_navbar(
       ),
 
       tags$div(id="cite",
-        'Informacion de Institución Importante ', tags$em('OBSSA, 2021-2022'), ' by Equipo OBSSA.'
+        "Informacion de Institución Importante ", tags$em("OBSSA, 2021-2022"), " by Equipo OBSSA."
       )
     )
   ),
@@ -67,8 +69,20 @@ page_navbar(
   ),
 
   bslib::nav(
-    "Acerca",
-    "Auxiliares"
+    "Opciones",
+    fluidRow(
+      column(
+        width = 4,
+        tags$h5("Leaflet Providers"),
+        radioButtons(
+          "leafletprov",
+          label = NULL,
+          choices = c("CartoDB.Positron", "Esri.WorldImagery", "Esri.WorldTopoMap")
+        ),
+        leafletOutput("map_demo")
+      ),
+      column(width = 4)
+    )
   )
 
 )

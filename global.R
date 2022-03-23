@@ -1,7 +1,14 @@
 # packages ----------------------------------------------------------------
+library(shiny)
+library(shinyWidgets)
+
 library(tidyverse)
+
 library(bslib)
+
 library(leaflet)
+library(leaflet.providers)
+
 library(highcharter)
 # remotes::install_github("jbkunst/highcharter")
 
@@ -16,7 +23,7 @@ theme_obbsa <-  bs_theme(
   # fg = "#236478",
   # primary = "black",
   # bootswatch = "yeti",
-  base_font = font_google("IBM Plex Sans")
+  base_font = font_google(parametros$font_family)
 )
 
 options(
@@ -27,10 +34,9 @@ options(
   )
 )
 
-# theme <- bs_add_rules(
-#   theme_obbsa,
-#   ".bg-dark, .navbar.navbar-inverse { background-color: #236478 !important;}"
-#   )
+# theme <- theme_obbsa %>%
+#   bs_add_rules("")
+
 
 # bslib::bs_theme_preview(theme_obbsa)
 
@@ -52,10 +58,29 @@ opt_variable <- dplyr::filter(ddefvars, Name %in% opt_variable) %>%
 
 opt_variable
 
-opt_valores <- list(
-  "Ultimo registro",
-  "Promedio últimos 5 días"
+
+fun_group <- list(
+  "Horaria" = partial(lubridate::ceiling_date, unit = "hour"),
+  "Diaria"  = partial(lubridate::ceiling_date, unit = "day"),
+  "Semanal" = partial(lubridate::ceiling_date, unit = "week"),
+  "Mensual" = partial(lubridate::ceiling_date, unit = "month"),
+  "Sin agrupar" = identity
+  )
+
+opt_group <- names(fun_group)
+
+opt_group
+
+fun_stat <- list(
+  "Promedio"  = partial(mean, na.rm = TRUE),
+  "Mínimo"    = partial(min, na.rm = TRUE),
+  "Máximo"    = partial(max, na.rm = TRUE),
+  "Acumulado (suma)" = partial(sum, na.rm = TRUE)
 )
+
+opt_stat <- names(fun_stat)
+
+opt_stat
 
 opt_estaciones <- destaciones %>%
   select(nombre, identificador) %>%

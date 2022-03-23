@@ -1,4 +1,4 @@
-# input <- list(color = "T", value = "max", station = "INIA-83")
+# input <- list(variable = "T",  group = "Semanal", station = "INIA-83")
 
 function(input, output, session) {
 
@@ -19,6 +19,16 @@ function(input, output, session) {
       setView(lng =  -70.64827, lat = -33.45694, zoom = 6)
   })
 
+  # mapa demo
+  output$map_demo <- renderLeaflet({
+
+    map <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+      setView(lng =  -70.64827, lat = -33.45694, zoom = 6) %>%
+      addProviderTiles(input$leafletprov) %>%
+      htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }")
+
+  })
+
   # grafico detalle
   output$chart <- renderHighchart({
 
@@ -33,20 +43,32 @@ function(input, output, session) {
   data_variable <- reactive({
 
     data_variable <- ddefvars %>%
-      filter(Name == input$color) %>%
+      filter(Name == input$variable) %>%
       as.list()
 
     data_variable
 
   })
 
-  # data que depende de la variable y valor
+  # data que depende de la variable/agrupacion/stats
   data_transformada <- reactive({
 
+    fceil <- fun_group[[input$group]]
+    fstat <- fun_stat[[input$stat]]
+
     data_transformada <- dtiempo %>%
-      filter(var == input$color) %>%
-      # ACA FALTA LA TRANSFORMACION "VALOR"
-      group_by(station) %>%
+      # filtramos datos que importan
+      filter(var == input$variable) %>%
+
+      # redondeamos fechas
+      mutate(tiempo = fceil(tiempo)) %>%
+
+      # agrupación
+      group_by(tiempo, station) %>%
+
+      # calculo, por defaul, de momento obtendremos media
+      summarise(valor = fstat(valor), .groups = "drop") %>%
+
       ungroup() %>%
       left_join(
         destaciones %>% select(latitud, longitud, station = nombre, identificador), by = "station"
@@ -82,11 +104,24 @@ function(input, output, session) {
 
   })
 
+  # observer que mira si variable es precipitacion
+  observeEvent(input$variable, {
+
+    if(input$variable == "P") {
+      opts <- "Acumulado (suma)"
+    } else {
+      opts <- setdiff(opt_stat, "Acumulado (suma)")
+    }
+
+    updateSelectInput(session = session, "stat", choices = opts)
+
+  })
+
   # observer escucha variable y valor para modificar estaciones/markers
   observe({
 
-    # message(input$color)
-    # colorBy <- input$color
+    # message(input$variable)
+    # colorBy <- input$variable
     # sizeBy <- input$size
 
     data_markers  <- data_markers()
@@ -108,6 +143,10 @@ function(input, output, session) {
 
     leafletProxy("map", data = data_markers) %>%
       clearShapes() %>%
+
+      # provider
+      addProviderTiles(input$leafletprov) %>%
+
       # addCircles(
       addCircleMarkers(
         ~longitud,
