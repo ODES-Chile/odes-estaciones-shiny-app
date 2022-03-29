@@ -1,30 +1,30 @@
-# input <- list(variable = "T",  group = "Semanal", station = "INIA-83")
+# input <- list(variable = "T",  group = "Semanal", stat = "Promedio", station = "INIA-83")
 
 function(input, output, session) {
 
   # mapa principal
   output$map <- renderLeaflet({
 
-    leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-      # addTiles() %>%
+    leaflet(options = leafletOptions(zoomControl = FALSE)) |>
+      # addTiles() |>
 
-      addProviderTiles(providers$CartoDB.Positron) %>%
+      addProviderTiles(providers$CartoDB.Positron) |>
 
       # addTiles(
       #   urlTemplate = "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
       #   attribution = '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      # ) %>%
+      # ) |>
 
-      htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") %>%
+      htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
       setView(lng =  -70.64827, lat = -33.45694, zoom = 6)
   })
 
   # mapa demo
   output$map_demo <- renderLeaflet({
 
-    map <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
-      setView(lng =  -70.64827, lat = -33.45694, zoom = 6) %>%
-      addProviderTiles(input$leafletprov) %>%
+    map <- leaflet(options = leafletOptions(zoomControl = FALSE)) |>
+      setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
+      addProviderTiles(input$leafletprov) |>
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }")
 
   })
@@ -32,9 +32,9 @@ function(input, output, session) {
   # grafico detalle
   output$chart <- renderHighchart({
 
-    highchart() %>%
-      hc_add_series(data = NULL, id = "data", showInLegend = FALSE) %>%
-      hc_xAxis(type = "datetime") %>%
+    highchart() |>
+      hc_add_series(data = NULL, id = "data", showInLegend = FALSE) |>
+      hc_xAxis(type = "datetime") |>
       hc_credits(enabled = TRUE, text = "", href = "")
 
   })
@@ -42,8 +42,8 @@ function(input, output, session) {
   # reactivo de informacion de variable seleccionada
   data_variable <- reactive({
 
-    data_variable <- ddefvars %>%
-      filter(Name == input$variable) %>%
+    data_variable <- ddefvars |>
+      filter(Name == input$variable) |>
       as.list()
 
     data_variable
@@ -53,38 +53,42 @@ function(input, output, session) {
   # data que depende de la variable/agrupacion/stats
   data_transformada <- reactive({
 
+    # # aca el proceso se demora por lo que debiera...
+    if(input$showchart){
+      highchartProxy("chart") |>
+        hcpxy_loading(action = "show")
+    }
+
     fceil <- fun_group[[input$group]]
     fstat <- fun_stat[[input$stat]]
 
-    data_transformada <- dtiempo %>%
-      # filtramos datos que importan
-      filter(var == input$variable) %>%
+    data_transformada <- dtiempo |>
+      # filtramos datos de variable seleccionada
+      filter(var == input$variable)
 
+    # si no hay quea grupar, se retorna data sin procesar
+    if(identical(fceil, identity)) return(data_transformada)
+
+    data_transformada <- data_transformada |>
       # redondeamos fechas
-      mutate(tiempo = fceil(tiempo)) %>%
-
+      mutate(tiempo = fceil(tiempo)) |>
       # agrupación
-      group_by(tiempo, station) %>%
-
+      group_by(tiempo, identificador) |>
       # calculo, por defaul, de momento obtendremos media
-      summarise(valor = fstat(valor), .groups = "drop") %>%
-
-      ungroup() %>%
-      left_join(
-        destaciones %>% select(latitud, longitud, station = nombre, identificador), by = "station"
-      ) %>%
-      arrange(latitud, longitud)
+      summarise(valor = fstat(valor), .groups = "drop") |>
+      ungroup()
 
     data_transformada
 
-  })
+  }) |>
+    bindCache(input$group, input$stat, input$variable)
 
   # filtra data_transformada por la estacion
   data_transformada_estacion <- reactive({
 
     data_transformada <- data_transformada()
 
-    data_transformada_estacion <- data_transformada %>%
+    data_transformada_estacion <- data_transformada |>
       filter(identificador == input$station)
 
     data_transformada_estacion
@@ -96,9 +100,11 @@ function(input, output, session) {
 
     data_transformada <- data_transformada()
 
-    data_markers <- data_transformada %>%
-      group_by(identificador) %>%
-      filter(tiempo == max(tiempo))
+    data_markers <- data_transformada |>
+      group_by(identificador) |>
+      filter(tiempo == max(tiempo)) |>
+      ungroup() |>
+      left_join(destaciones |> select(latitud, longitud, identificador, nombre), by = "identificador")
 
     data_markers
 
@@ -129,10 +135,10 @@ function(input, output, session) {
     data_variable <- data_variable()
 
     # crear label
-    data_markers <- data_markers %>%
+    data_markers <- data_markers |>
       mutate(
         # spark = map_chr(valor, function(x){ as.character(htmltools::tagList(sparkline(sample(20), width = 100))) }),
-        lbl = str_glue("{ station }:<br/> {round(valor, 2)} { data_variable$Symbol }")
+        lbl = str_glue("{ nombre  }:<br/> {round(valor, 2)} { data_variable$Symbol }")
         )
 
     colorData <- data_markers[["valor"]]
@@ -141,16 +147,21 @@ function(input, output, session) {
 
     # radius <- scales::rescale(data_markers[["valor"]], to = c(1000, 20000))
 
-    leafletProxy("map", data = data_markers) %>%
-      clearShapes() %>%
+    leafletProxy("map", data = data_markers) |>
+      clearShapes() |>
 
       # provider
-      addProviderTiles(input$leafletprov) %>%
+      addProviderTiles(input$leafletprov) |>
 
       # addCircles(
       addCircleMarkers(
         ~longitud,
-        ~ latitud,
+        ~latitud,
+
+        stroke = TRUE,
+        color = "white",
+        weight = 1,
+
         # radius = radius,
         # https://stackoverflow.com/a/43155126/829971
         label = ~lapply(data_markers$lbl, htmltools::HTML),
@@ -167,10 +178,9 @@ function(input, output, session) {
             )
         ),
         layerId = ~identificador,
-        stroke = FALSE,
-        fillOpacity = 0.8,
+        fillOpacity = 0.95,
         fillColor = pal(colorData)
-        ) %>%
+        ) |>
       addLegend(
         # "bottomleft",
         "topright",
@@ -206,14 +216,14 @@ function(input, output, session) {
     if(input$station == "") return(TRUE)
 
     # leaflet
-    coords <- destaciones %>%
-      filter(identificador == input$station) %>%
-      select(longitud, latitud) %>%
-      gather() %>%
-      deframe() %>%
+    coords <- destaciones |>
+      filter(identificador == input$station) |>
+      select(longitud, latitud) |>
+      gather() |>
+      deframe() |>
       as.list()
 
-    leafletProxy("map") %>%
+    leafletProxy("map") |>
       flyTo(lng = coords$longitud, lat = coords$latitud, zoom = 7)
 
   })
@@ -221,21 +231,23 @@ function(input, output, session) {
   # observa si cambia la data estacion para modificar chart
   observe({
 
+    if(!input$showchart) return(TRUE)
+
     data_transformada_estacion <- data_transformada_estacion()
 
     data_variable <- data_variable()
 
-    datos <- data_transformada_estacion %>%
-      select(x = tiempo, y = valor) %>%
+    datos <- data_transformada_estacion |>
+      select(x = tiempo, y = valor) |>
       mutate(x = datetime_to_timestamp(x), y = round(y, 2))
 
-    highchartProxy("chart") %>%
+    highchartProxy("chart") |>
       hcpxy_update_series(
         id = "data",
         data = list_parse2(datos),
         color = parametros$color,
         name = data_variable$Description
-      ) %>%
+      ) |>
       hcpxy_update(
         # tooltip = list(),
         yAxis = list(
@@ -243,10 +255,10 @@ function(input, output, session) {
             format = str_glue("{{value}} { symbol }", symbol = data_variable$Symbol)
             )
           ),
-        credits = list(
-          text = data_variable$Description
-          )
-      )
+        credits = list(text = data_variable$Description)
+      ) |>
+      hcpxy_loading(action = "hide") |>
+      hcpxy_update_series()
 
 
 

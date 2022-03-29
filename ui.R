@@ -26,12 +26,11 @@ page_navbar(
         top = 77 + 10, left = 10,
         right = "auto", bottom = "auto",
 
-        h6("Panel de control"),
+        # h6("Panel de control"),
+        tags$br(),
 
         selectInput("variable", tags$small("Variable"), opt_variable),
-
-        selectInput("group", tags$small("Agrupación temporal"), opt_group),
-
+        selectInput("group", tags$small("Agrupación temporal"), opt_group, selected = "Diaria"),
         selectInput("stat", tags$small("Estadístico (cálculo)"), opt_stat),
 
         selectizeInput(
@@ -47,15 +46,15 @@ page_navbar(
         conditionalPanel(
           # "false",
           "input.station != ''",
-          checkboxInput("showchart", "Mostrar detalle estacion histórica"),
+          # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
+          checkboxInput("showchart", "Mostrar información histórica"),
+
           conditionalPanel(
             "input.showchart",
             # "hchart va en 2do contitaion panel",
-            highchartOutput("chart", width = "100%", height = "250px"),
-
+            highchartOutput("chart", width = "100%", height = "250px")
           ),
         )
-
       ),
 
       tags$div(id="cite",
@@ -72,17 +71,25 @@ page_navbar(
     "Opciones",
     fluidRow(
       column(
-        width = 4,
-        tags$h5("Leaflet Providers"),
-        radioButtons(
-          "leafletprov",
-          label = NULL,
-          choices = c("CartoDB.Positron", "Esri.WorldImagery", "Esri.WorldTopoMap")
-        ),
-        leafletOutput("map_demo")
-      ),
-      column(width = 4)
+        width = 8,
+        offset = 2,
+
+        tabsetPanel(
+          type = "pills",
+          tabPanel(
+            "Leaflet Providers",
+            tags$br(),
+            radioButtons(
+              "leafletprov",
+              label = NULL,
+              inline = TRUE,
+              choices = c("CartoDB.Positron", "Esri.WorldImagery", "Esri.WorldTopoMap")
+            ),
+            leafletOutput("map_demo")
+          ),
+          tabPanel("Otra opción")
+        )
+      )
     )
   )
-
 )

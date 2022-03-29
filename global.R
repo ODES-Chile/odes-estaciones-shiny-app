@@ -1,14 +1,9 @@
 # packages ----------------------------------------------------------------
 library(shiny)
-library(shinyWidgets)
-
 library(tidyverse)
-
 library(bslib)
-
 library(leaflet)
 library(leaflet.providers)
-
 library(highcharter)
 # remotes::install_github("jbkunst/highcharter")
 
@@ -26,34 +21,45 @@ theme_obbsa <-  bs_theme(
   base_font = font_google(parametros$font_family)
 )
 
+langs <- getOption("highcharter.lang")
+
+# langs$loading <- "<i class='fas fa-circle-notch fa-spin fa-4x'></i>"
+langs$loading <- "Cargando información"
+
+options()
+
 options(
-  highcharter.theme = hc_theme(
+  highcharter.lang = langs,
+  highcharter.theme = hc_theme_smpl(
     color = parametros$color,
     chart = list(style = list(fontFamily = parametros$font_family))
     # colors = parametros$color
   )
 )
 
-# theme <- theme_obbsa %>%
+# theme <- theme_obbsa |>
 #   bs_add_rules("")
 
 
 # bslib::bs_theme_preview(theme_obbsa)
 
 # data --------------------------------------------------------------------
-dtiempo     <- readRDS("data/dummy/dtiempo.rds")
+# dtiempo     <- readRDS("data/dummy/dtiempo.rds")
+dtiempo     <- readRDS("data/data_inia_chile.rds")
+dtiempo     <- mutate(dtiempo, tiempo = lubridate::ymd_hm(tiempo))
+dtiempo     <- rename(dtiempo, identificador = cod)
 
 destaciones <- readRDS("data/dummy/estaciones.rds")
 
 ddefvars    <- readRDS("data/definicion_variables.rds")
 
 # inputs options ----------------------------------------------------------
-opt_variable <- dtiempo %>%
-  count(var) %>%
+opt_variable <- dtiempo |>
+  count(var) |>
   pull(var)
 
-opt_variable <- dplyr::filter(ddefvars, Name %in% opt_variable) %>%
-  select(Description, Name) %>%
+opt_variable <- dplyr::filter(ddefvars, Name %in% opt_variable) |>
+  select(Description, Name) |>
   deframe()
 
 opt_variable
@@ -82,6 +88,7 @@ opt_stat <- names(fun_stat)
 
 opt_stat
 
-opt_estaciones <- destaciones %>%
-  select(nombre, identificador) %>%
+opt_estaciones <- destaciones |>
+  select(nombre, identificador) |>
   deframe()
+
