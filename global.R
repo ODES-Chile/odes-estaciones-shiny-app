@@ -45,28 +45,50 @@ options(
 
 # data --------------------------------------------------------------------
 # dtiempo     <- readRDS("data/dummy/dtiempo.rds")
-dtiempo     <- readRDS("data/data_inia_chile.rds")
-dtiempo     <- mutate(dtiempo, tiempo = lubridate::ymd_hm(tiempo))
-dtiempo     <- rename(dtiempo, identificador = cod)
+# dtiempo     <- readRDS("data/data_inia_chile.rds")
+# dtiempo     <- mutate(dtiempo, tiempo = lubridate::ymd_hm(tiempo))
+# dtiempo     <- rename(dtiempo, identificador = cod)
+# destaciones <- readRDS("data/dummy/estaciones.rds")
 
-destaciones <- readRDS("data/dummy/estaciones.rds")
-
+# data        <- readRDS("data/data_diaria.rds")
+# data        <- readRDS("data/data_diaria_202X.rds")
+data        <- readRDS("data/data_diaria_2022.rds")
+destaciones <- readRDS("data/estaciones.rds")
 ddefvars    <- readRDS("data/definicion_variables.rds")
 
-# inputs options ----------------------------------------------------------
-opt_variable <- dtiempo |>
-  count(var) |>
-  pull(var)
+data        |> count(red)
+destaciones |> count(red)
 
-opt_variable <- dplyr::filter(ddefvars, Name %in% opt_variable) |>
-  select(Description, Name) |>
+# inputs options ----------------------------------------------------------
+# glimpse(data)
+opt_variable <- data |>
+  slice(0) |>
+  select(temp_promedio_aire,
+         temp_minima,
+         temp_maxima,
+         precipitacion_horaria,
+         humed_rel_promedio,
+         presion_atmosferica,
+         radiacion_solar_max,
+         veloc_max_viento
+         ) |>
+  names() |>
+  as_tibble() |>
+  mutate(desc = snakecase::to_sentence_case(value)) |>
+  select(desc, value) |>
   deframe()
 
 opt_variable
 
+# opt_variable <- ddefvars |>
+#   dplyr::filter(Name %in% opt_variable) |>
+#   select(Description, Name) |>
+#   deframe()
+
+opt_variable
 
 fun_group <- list(
-  "Horaria" = partial(lubridate::ceiling_date, unit = "hour"),
+  # "Horaria" = partial(lubridate::ceiling_date, unit = "hour"),
   "Diaria"  = partial(lubridate::ceiling_date, unit = "day"),
   "Semanal" = partial(lubridate::ceiling_date, unit = "week"),
   "Mensual" = partial(lubridate::ceiling_date, unit = "month"),
@@ -89,6 +111,12 @@ opt_stat <- names(fun_stat)
 opt_stat
 
 opt_estaciones <- destaciones |>
-  select(nombre, identificador) |>
+  arrange(latitud) |>
+  select(nombre_estacion, estacion_id) |>
   deframe()
 
+# highcharter vacio
+hc_void <- highchart() |>
+  hc_add_series(data = NULL, id = "data", showInLegend = FALSE) |>
+  hc_xAxis(type = "datetime") |>
+  hc_credits(enabled = TRUE, text = "", href = "")

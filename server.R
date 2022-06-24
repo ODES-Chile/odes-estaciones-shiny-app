@@ -1,4 +1,4 @@
-# input <- list(variable = "T",  group = "Semanal", stat = "Promedio", station = "INIA-83")
+# input <- list(variable = "temp_promedio_aire",  group = "Semanal", stat = "Promedio", station = 1)
 
 function(input, output, session) {
 
@@ -7,14 +7,11 @@ function(input, output, session) {
 
     leaflet(options = leafletOptions(zoomControl = FALSE)) |>
       # addTiles() |>
-
       addProviderTiles(providers$CartoDB.Positron) |>
-
       # addTiles(
       #   urlTemplate = "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
       #   attribution = '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       # ) |>
-
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
       setView(lng =  -70.64827, lat = -33.45694, zoom = 6)
   })
@@ -27,23 +24,34 @@ function(input, output, session) {
       addProviderTiles(input$leafletprov) |>
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }")
 
+    map
+
   })
 
-  # grafico detalle
-  output$chart <- renderHighchart({
+  # mini grafico
+  output$chart <- renderHighchart(hc_void)
 
-    highchart() |>
-      hc_add_series(data = NULL, id = "data", showInLegend = FALSE) |>
-      hc_xAxis(type = "datetime") |>
-      hc_credits(enabled = TRUE, text = "", href = "")
+  # grafico temperatura estracion
+  output$chart_temp <- renderHighchart(hc_void)
 
+  # botton cambia a detalle de la estación
+  observeEvent(input$detalle_estacion, {
+    message("hola")
+    nav_select(
+      id = "nav",
+      selected = "estacion",
+      session
+      )
   })
 
   # reactivo de informacion de variable seleccionada
   data_variable <- reactive({
 
+    input$variable
+
     data_variable <- ddefvars |>
-      filter(Name == input$variable) |>
+      slice(1) |>
+      # filter(Name == input$variable) |>
       as.list()
 
     data_variable
@@ -51,6 +59,7 @@ function(input, output, session) {
   })
 
   # data que depende de la variable/agrupacion/stats
+  # para todas las estaciones
   data_transformada <- reactive({
 
     # # aca el proceso se demora por lo que debiera...
@@ -62,18 +71,25 @@ function(input, output, session) {
     fceil <- fun_group[[input$group]]
     fstat <- fun_stat[[input$stat]]
 
-    data_transformada <- dtiempo |>
-      # filtramos datos de variable seleccionada
-      filter(var == input$variable)
+    # data_transformada <- dtiempo |>
+    #   # filtramos datos de variable seleccionada
+    #   filter(var == input$variable)
+
+    data_transformada <- data |>
+      select(
+        fecha_hora,
+        valor = .data[[input$variable]],
+        estacion_id
+      )
 
     # si no hay quea grupar, se retorna data sin procesar
     if(identical(fceil, identity)) return(data_transformada)
 
     data_transformada <- data_transformada |>
       # redondeamos fechas
-      mutate(tiempo = fceil(tiempo)) |>
+      mutate(fecha_hora = fceil(fecha_hora)) |>
       # agrupación
-      group_by(tiempo, identificador) |>
+      group_by(fecha_hora, estacion_id) |>
       # calculo, por defaul, de momento obtendremos media
       summarise(valor = fstat(valor), .groups = "drop") |>
       ungroup()
@@ -84,14 +100,25 @@ function(input, output, session) {
     bindCache(input$group, input$stat, input$variable)
 
   # filtra data_transformada por la estacion
+  # para el mini chart
   data_transformada_estacion <- reactive({
 
     data_transformada <- data_transformada()
 
     data_transformada_estacion <- data_transformada |>
-      filter(identificador == input$station)
+      filter(estacion_id  == input$station)
 
     data_transformada_estacion
+
+  })
+
+  # data de estacion
+  data_estacion <- reactive({
+
+    data_estacion <- data |>
+      filter(estacion_id == input$station)
+
+    data_estacion
 
   })
 
@@ -101,10 +128,13 @@ function(input, output, session) {
     data_transformada <- data_transformada()
 
     data_markers <- data_transformada |>
-      group_by(identificador) |>
-      filter(tiempo == max(tiempo)) |>
+      group_by(estacion_id) |>
+      filter(fecha_hora == max(fecha_hora)) |>
       ungroup() |>
-      left_join(destaciones |> select(latitud, longitud, identificador, nombre), by = "identificador")
+      left_join(
+        select(destaciones, latitud, longitud, estacion_id, nombre_estacion, red),
+        by = "estacion_id"
+        )
 
     data_markers
 
@@ -113,7 +143,7 @@ function(input, output, session) {
   # observer que mira si variable es precipitacion
   observeEvent(input$variable, {
 
-    if(input$variable == "P") {
+    if(input$variable == "precipitacion_horaria") {
       opts <- "Acumulado (suma)"
     } else {
       opts <- setdiff(opt_stat, "Acumulado (suma)")
@@ -138,7 +168,7 @@ function(input, output, session) {
     data_markers <- data_markers |>
       mutate(
         # spark = map_chr(valor, function(x){ as.character(htmltools::tagList(sparkline(sample(20), width = 100))) }),
-        lbl = str_glue("{ nombre  }:<br/> {round(valor, 2)} { data_variable$Symbol }")
+        lbl = str_glue("{ nombre_estacion  }:<br/> {round(valor, 2)} { data_variable$Symbol }<br/><small>red: { red }</small>")
         )
 
     colorData <- data_markers[["valor"]]
@@ -177,7 +207,7 @@ function(input, output, session) {
             "border-color" = "rgba(0,0,0,0.15)"
             )
         ),
-        layerId = ~identificador,
+        layerId = ~estacion_id,
         fillOpacity = 0.95,
         fillColor = pal(colorData)
         ) |>
@@ -197,8 +227,8 @@ function(input, output, session) {
   # observeEvent(input$map_shape_click, {
   observeEvent(input$map_marker_click, {
 
-    # print(input$map_shape_click)
-    # print(input$map_marker_click)
+    print(input$map_shape_click)
+    print(input$map_marker_click)
 
     updateSelectizeInput(
       session,
@@ -217,7 +247,7 @@ function(input, output, session) {
 
     # leaflet
     coords <- destaciones |>
-      filter(identificador == input$station) |>
+      filter(estacion_id == input$station) |>
       select(longitud, latitud) |>
       gather() |>
       deframe() |>
@@ -226,9 +256,33 @@ function(input, output, session) {
     leafletProxy("map") |>
       flyTo(lng = coords$longitud, lat = coords$latitud, zoom = 7)
 
+    data_estacion <- data_estacion()
+
+    datos <- data_estacion |>
+      select(x = fecha_hora, y = temp_promedio_aire) |>
+      mutate(x = datetime_to_timestamp(x), y = round(y, 2))
+
+    highchartProxy("chart_temp") |>
+      hcpxy_update_series(
+        id = "data",
+        data = list_parse2(datos),
+        color = parametros$color
+        # name = data_variable$Description
+      ) |>
+      # hcpxy_update(
+      #   # tooltip = list(),
+      #   yAxis = list(
+      #     labels = list(
+      #       format = str_glue("{{value}} { symbol }", symbol = "C")
+      #     )
+      #   ),
+      #   credits = list(text = data_variable$Description)
+      # ) |>
+      hcpxy_update_series()
+
   })
 
-  # observa si cambia la data estacion para modificar chart
+  # observa si cambia la data estacion para modificar el mini chart
   observe({
 
     if(!input$showchart) return(TRUE)
@@ -238,7 +292,7 @@ function(input, output, session) {
     data_variable <- data_variable()
 
     datos <- data_transformada_estacion |>
-      select(x = tiempo, y = valor) |>
+      select(x = fecha_hora, y = valor) |>
       mutate(x = datetime_to_timestamp(x), y = round(y, 2))
 
     highchartProxy("chart") |>

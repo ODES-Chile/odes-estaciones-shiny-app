@@ -3,8 +3,8 @@ page_navbar(
   title  = tags$h4("OBSSA", class = "title"),
   id = "nav",
   theme = theme_obbsa,
+  # mapa --------------------------------------------------------------------
   bslib::nav(
-  # tabPanel(
     "Mapa",
     div(class="outer",
 
@@ -52,7 +52,8 @@ page_navbar(
           conditionalPanel(
             "input.showchart",
             # "hchart va en 2do contitaion panel",
-            highchartOutput("chart", width = "100%", height = "250px")
+            highchartOutput("chart", width = "100%", height = "250px"),
+            actionButton("detalle_estacion", label = "Ver detalle estacion", class = "btn-sm")
           ),
         )
       ),
@@ -62,11 +63,24 @@ page_navbar(
       )
     )
   ),
+  # detalle estacion --------------------------------------------------------
 
+  bslib::nav(
+    "Estación",
+    value = "estacion",
+    fluidRow(
+      column(
+        width = 8,
+        offset = 2,
+        highchartOutput("chart_temp", width = "100%")
+        )
+      )
+  ),
+  # datos -------------------------------------------------------------------
   bslib::nav(
     "Datos"
   ),
-
+  # opciones ----------------------------------------------------------------
   bslib::nav(
     "Opciones",
     fluidRow(
@@ -87,7 +101,7 @@ page_navbar(
             ),
             leafletOutput("map_demo")
           ),
-          tabPanel("Otra opción")
+          # tabPanel("Otra opción")
         )
       )
     )
