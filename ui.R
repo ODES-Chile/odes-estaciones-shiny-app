@@ -64,22 +64,63 @@ page_navbar(
     )
   ),
   # detalle estacion --------------------------------------------------------
-
+  # bslib::nav(
+  #   "Estación",
+  #   value = "estacion",
+  #   fluidRow(
+  #     column(
+  #       width = 8,
+  #       offset = 2,
+  #       highchartOutput("chart_temp", width = "100%")
+  #       )
+  #     )
+  # ),
+  # datos -------------------------------------------------------------------
   bslib::nav(
-    "Estación",
-    value = "estacion",
+    "Datos",
     fluidRow(
       column(
         width = 8,
         offset = 2,
-        highchartOutput("chart_temp", width = "100%")
+        tabsetPanel(
+          type = "pills",
+          tabPanel(
+            "Estaciones",
+            tags$br(),
+
+            selectizeInput(
+              "station_data_stations",
+              "Seleciones estaciones a descargar",
+              opt_estaciones_datos,
+              multiple = TRUE,
+              width = "100%",
+              options = list(
+                # maxOptions = 10,
+                placeholder = "Seleccionar estación(es)",
+                onInitialize = I('function() { this.setValue(""); }')
+              )
+            ),
+
+            conditionalPanel(
+              # "false",
+              "input.station_data_stations != ''",
+
+              sliderTextInput(
+                inputId = "station_data_date",
+                label = "Seleccione rango de fechas a descargar",
+                choices = opt_estaciones_meses,
+                selected = tail(opt_estaciones_meses, 2),
+                width = "100%"
+              ),
+              downloadButton("station_data_download", label = "Descargar", class = "btn")
+              )
+            ),
+          tabPanel("Shapes", "shapes"),
+          tabPanel("Rasters", "rasters")
+          ),
         )
       )
-  ),
-  # datos -------------------------------------------------------------------
-  bslib::nav(
-    "Datos"
-  ),
+    ),
   # opciones ----------------------------------------------------------------
   bslib::nav(
     "Opciones",

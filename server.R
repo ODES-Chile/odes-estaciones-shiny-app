@@ -318,4 +318,31 @@ function(input, output, session) {
 
   })
 
+  station_data <- reactive({
+
+    sttns <- isolate(input$station_data_stations)
+    # sttns <- c(4, 10)
+    dts <- isolate(input$station_data_date)
+    # dts <- tail(opt_estaciones_meses, 2)
+
+    dts <- lubridate::ymd(str_c(dts, "/01", sep = ""))
+
+    dts_min <- lubridate::as_datetime(dts[1])
+    dts_max <- lubridate::as_datetime(dts[2]) + months(1) - lubridate::seconds(1)
+
+    data |>
+      filter(estacion_id  %in% sttns) |>
+      filter(fecha_hora <= dts_max) |>
+      filter(dts_min >= dts_min)
+  })
+
+  output$station_data_download <- downloadHandler(
+    filename = function() {
+      paste("data-", Sys.Date(), ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(station_data(), file)
+    }
+  )
+
 }

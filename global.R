@@ -5,6 +5,7 @@ library(bslib)
 library(leaflet)
 library(leaflet.providers)
 library(highcharter)
+library(shinyWidgets)
 # remotes::install_github("jbkunst/highcharter")
 
 # options -----------------------------------------------------------------
@@ -120,3 +121,32 @@ hc_void <- highchart() |>
   hc_add_series(data = NULL, id = "data", showInLegend = FALSE) |>
   hc_xAxis(type = "datetime") |>
   hc_credits(enabled = TRUE, text = "", href = "")
+
+
+
+# opciones descarga de datos ----------------------------------------------
+opt_estaciones_datos <- destaciones |>
+  arrange(desc(latitud)) |>
+  mutate(
+    latitud  = round(latitud, 3),
+    longitud = round(longitud, 3),
+    nombre_estacion = str_glue(" {region} - {nombre_estacion} - ({latitud}, {longitud}) ")
+    ) |>
+  select(nombre_estacion, estacion_id) |>
+  deframe()
+
+fechas_min_max <- data |>
+  summarise(
+    fecha_hora_min = min(fecha_hora),
+    fecha_hora_max=  max(fecha_hora)
+  ) |>
+  gather() |>
+  mutate(value = lubridate::ceiling_date(value, unit = "month")) |>
+  pull(value) |>
+  as.Date()
+
+opt_estaciones_meses <- seq.Date(fechas_min_max[1], fechas_min_max[2], by = "month") |>
+  format("%Y/%m")
+
+opt_estaciones_meses
+
