@@ -1,8 +1,8 @@
 # navbarPage(
 page_navbar(
-  title  = tags$h4("OBSSA", class = "title"),
+  title  = tags$span("ODES", class = "title"),
   id = "nav",
-  theme = theme_obbsa,
+  theme = theme_odes,
   # mapa --------------------------------------------------------------------
   bslib::nav(
     "Mapa",
