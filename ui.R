@@ -59,7 +59,7 @@ page_navbar(
       ),
 
       tags$div(id="cite",
-        "Informacion de Institución Importante ", tags$em("OBSSA, 2021-2022"), " by Equipo OBSSA."
+        "Informacion de Institución Importante ", tags$em("OBSSA, 2021-2022"), " by Equipo ODES."
       )
     )
   ),
