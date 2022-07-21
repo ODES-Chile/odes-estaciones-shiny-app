@@ -2,6 +2,7 @@
 
 function(input, output, session) {
 
+  # main --------------------------------------------------------------------
   # mapa principal
   output$map <- renderLeaflet({
 
@@ -14,18 +15,6 @@ function(input, output, session) {
       # ) |>
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
       setView(lng =  -70.64827, lat = -33.45694, zoom = 6)
-  })
-
-  # mapa demo
-  output$map_demo <- renderLeaflet({
-
-    map <- leaflet(options = leafletOptions(zoomControl = FALSE)) |>
-      setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
-      addProviderTiles(input$leafletprov) |>
-      htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }")
-
-    map
-
   })
 
   # mini grafico
@@ -74,6 +63,7 @@ function(input, output, session) {
     fstat <- fun_stat[[input$stat]]
 
     data_transformada <- tbl(sql_con(), parametros$tabla_datos) |>
+      filter(year(fecha_hora) >= 2022) |>
       select(
         fecha_hora,
         valor = .data[[input$variable]],
@@ -241,7 +231,6 @@ function(input, output, session) {
 
   # dado el cambio de estacion:
   # 1. centrar el mapa en la ubicación de la estacion
-  # 2. cambiar grafico< NO VA
   observeEvent(input$station, {
 
     # message(input$station)
@@ -272,7 +261,8 @@ function(input, output, session) {
 
     datos <- data_transformada_estacion |>
       select(x = fecha_hora, y = valor) |>
-      mutate(x = datetime_to_timestamp(x), y = round(y, 2))
+      mutate(x = datetime_to_timestamp(x), y = round(y, 2)) |>
+      arrange(x)
 
     highchartProxy("chart") |>
       hcpxy_update_series(
@@ -296,7 +286,17 @@ function(input, output, session) {
   })
 
 
-# DATOS -------------------------------------------------------------------
+  # salon -------------------------------------------------------------------
+  output$chart_nyt <- renderHighchart({
+    nyt_chart(input$station_nyt)
+  })
+
+  output$chart_chi <- renderHighchart({
+    hcmap("countries/cl/cl-all")
+  })
+
+
+  # datos -------------------------------------------------------------------
   station_data <- reactive({
 
     sttns <- isolate(input$station_data_stations)
@@ -324,5 +324,22 @@ function(input, output, session) {
       write.csv(station_data(), file)
     }
   )
+
+
+  # opciones ----------------------------------------------------------------
+  # mapa demo
+  output$map_demo <- renderLeaflet({
+
+    map <- leaflet(options = leafletOptions(zoomControl = FALSE)) |>
+      setView(lng =  -70.64827, lat = -33.45694, zoom = 6) |>
+      addProviderTiles(input$leafletprov) |>
+      htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }")
+
+    map
+
+  })
+
+
+
 
 }

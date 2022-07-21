@@ -9,6 +9,7 @@ library(bslib)
 
 # DATA
 library(tidyverse)
+library(lubridate)
 library(RPostgres)
 library(pool)
 
@@ -17,16 +18,7 @@ library(cli)
 
 cli::cli_h1("Start global.R")
 
-# helpers -----------------------------------------------------------------
-sql_con <- function() {
-  dbPool(
-    drv = Postgres(),
-    dbname = "shiny",
-    host = "137.184.9.247",
-    user = "shiny",
-    password = Sys.getenv("SHINY_PSQL_PWD")
-  )
-}
+source("R/helpers.R")
 
 # options -----------------------------------------------------------------
 parametros <- list(
@@ -76,11 +68,19 @@ ddefvars    <- readRDS("data/definicion_variables.rds")
 destaciones <- tbl(sql_con(), parametros$tabla_estaciones) |>
   collect()
 
+destaciones <- destaciones |>
+  arrange(desc(latitud)) |>
+  mutate(
+    latitud  = round(latitud, 3),
+    longitud = round(longitud, 3),
+    nombre_estacion_largo = str_glue(" {region} - {nombre_estacion} - ({latitud}, {longitud}) ")
+  )
+
 # data        |> count(red)
 # destaciones |> count(red)
 
-# inputs options ----------------------------------------------------------
-# glimpse(data)
+
+# inputs main -------------------------------------------------------------
 opt_variable <- c(
   "temp_promedio_aire",
   "temp_minima",
@@ -123,25 +123,18 @@ opt_stat <- names(fun_stat)
 opt_stat
 
 opt_estaciones <- destaciones |>
-  arrange(latitud) |>
   select(nombre_estacion, station_id) |>
   deframe()
 
-# highcharter vacio
-hc_void <- highchart() |>
-  hc_add_series(data = NULL, id = "data", showInLegend = FALSE) |>
-  hc_xAxis(type = "datetime") |>
-  hc_credits(enabled = TRUE, text = "", href = "")
+# inputs salón ------------------------------------------------------------
+opt_estaciones_nyt <- destaciones |>
+  filter(station_id %in% unique(pull(readRDS("data/nyt_temp_historicos.rds"), station_id))) |>
+  select(nombre_estacion_largo, station_id) |>
+  deframe()
 
-# opciones descarga de datos ----------------------------------------------
+# inputs descarga datos ---------------------------------------------------
 opt_estaciones_datos <- destaciones |>
-  arrange(desc(latitud)) |>
-  mutate(
-    latitud  = round(latitud, 3),
-    longitud = round(longitud, 3),
-    nombre_estacion = str_glue(" {region} - {nombre_estacion} - ({latitud}, {longitud}) ")
-    ) |>
-  select(nombre_estacion, station_id) |>
+  select(nombre_estacion_largo, station_id) |>
   deframe()
 
 fechas_min_max <- tbl(sql_con(), parametros$tabla_datos) |>

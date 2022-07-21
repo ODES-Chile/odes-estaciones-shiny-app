@@ -59,22 +59,34 @@ page_navbar(
       ),
 
       tags$div(id="cite",
-        "Informacion de Institución Importante ", tags$em("OBSSA, 2021-2022"), " by Equipo ODES."
+        "Informacion de Institución Importante ", tags$em("ODES., 2021-2022"), " by Equipo ODES."
       )
     )
   ),
-  # detalle estacion --------------------------------------------------------
-  # bslib::nav(
-  #   "Estación",
-  #   value = "estacion",
-  #   fluidRow(
-  #     column(
-  #       width = 8,
-  #       offset = 2,
-  #       highchartOutput("chart_temp", width = "100%")
-  #       )
-  #     )
-  # ),
+
+  # salon -------------------------------------------------------------------
+  bslib::nav(
+    "Salón",
+    value = "salon",
+    fluidRow(
+      column(
+        width = 8,
+        offset = 2,
+
+        selectizeInput(
+          "station_nyt",
+          "Selecione estación a visualizar",
+          opt_estaciones_nyt,
+          multiple = FALSE,
+          width = "100%"
+        ),
+        fluidRow(
+          column(width = 10, highchartOutput("chart_nyt", width = "100%", height = 700)),
+          column(width =  2, highchartOutput("chart_chi", width = "100%", height = 700))
+          )
+        )
+      )
+  ),
   # datos -------------------------------------------------------------------
   bslib::nav(
     "Datos",
