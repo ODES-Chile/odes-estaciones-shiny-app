@@ -16,15 +16,20 @@ sql_con <- function() {
   )
 }
 
-nyt_chart <- function(id = 49){
+nyt_chart <- function(id = 49, year = lubridate::year(Sys.Date())){
 
-  cli::cli_h3(str_glue("nyt_chart: station_id {id}"))
+  cli::cli_h3(str_glue("nyt_chart: station_id {id}, year {year}"))
+
+  year <- as.numeric(year)
 
   d <- tbl(sql_con(), "estaciones_datos") |>
-    filter(station_id == id, year(fecha_hora) == max(year(fecha_hora) )) |>
+    filter(station_id == id, year(fecha_hora) == year) |>
     select(fecha_hora, temp_promedio_aire, temp_minima, temp_maxima, precipitacion_horaria) |>
     collect() |>
     arrange(fecha_hora)
+
+  d |>
+    count(fecha_hora, sort = TRUE)
 
   # esto es raro!!
   # al parecer queda un registro del mes anterior dando vuelta
@@ -48,13 +53,12 @@ nyt_chart <- function(id = 49){
   dt <- readRDS("data/nyt_temp_historicos.rds") |>
     filter(station_id == id) |>
     mutate(across(where(is.numeric), round, 2)) |>
-    mutate(xdt = dt_2_tstmp(ymd(str_c(year(Sys.Date()), m, d, sep = "/"))))
+    mutate(xdt = dt_2_tstmp(ymd(str_c(year, m, d, sep = "/"))))
 
   dp <- readRDS("data/nyt_prec_historicos.rds") |>
     filter(station_id == id) |>
     mutate(across(where(is.numeric), round, 2)) |>
-    mutate(xdt = dt_2_tstmp(ymd(str_c(year(Sys.Date()), m, d, sep = "/"))))
-
+    mutate(xdt = dt_2_tstmp(ymd(str_c(year, m, d, sep = "/"))))
 
   axis <- create_axis(
     naxis = 2,
@@ -111,7 +115,7 @@ nyt_chart <- function(id = 49){
       type = "columnrange",
       # color = parametros$color,
       color = "#6592a0",
-      name = str_c("Temperatura ", year(Sys.Date()))
+      name = str_c("Temperatura ", year)
     )  |>
 
     hc_add_series(

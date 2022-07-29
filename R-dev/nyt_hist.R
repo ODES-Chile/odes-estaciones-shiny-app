@@ -20,6 +20,8 @@ dt |>
 
 # agrupacion --------------------------------------------------------------
 dt_hist <- dt |>
+  # filtrar por periodo climatologico
+  # 30 anios
   group_by(
     nombre_ema,
     station_id,
@@ -36,6 +38,10 @@ dt_hist <- dt |>
 
     tmax_norm = quantile(tmax, .5,na.rm = TRUE),
     tmin_norm = quantile(tmin, .5, na.rm = TRUE),
+
+    # tmax_norm = quantile(tasmax, .5,na.rm = TRUE),
+    # tmin_norm = quantile(tasmin, .5, na.rm = TRUE),
+
 
     .groups  = "drop"
 
@@ -61,7 +67,6 @@ dt_hist |>
 dt_hist |>
   filter(is.infinite(tmax_hist))
 
-
 predict(
   loess(
     tmax_hist ~ as.numeric(fecha),
@@ -69,7 +74,6 @@ predict(
     data =  dt_hist |> filter(nombre_ema == "Andacollo")
     )
   )
-
 
 # suavizamiento -----------------------------------------------------------
 dt_hist <- dt_hist |>
@@ -83,11 +87,13 @@ dt_hist <- dt_hist |>
 
   )
 
+glimpse(dt_hist)
+
 dt_hist |>
   distinct(station_id)
 
 dt_hist |>
-  filter(station_id %in% c(1, 676, 353, 98)) |>
+  # filter(station_id %in% c(1, 676, 353, 98)) |>
   ggplot() +
   geom_ribbon(aes(fecha, ymin = tmin_hist, ymax = tmax_hist), fill = "gray80") +
   geom_ribbon(aes(fecha, ymin = tmin_norm, ymax = tmax_norm), fill = "gray50") +
@@ -97,10 +103,10 @@ dt_hist |>
   geom_line(aes(fecha, tmin_hist_smooth), color = "blue") +
 
 
-  # geom_smooth(aes(fecha, tmax_hist), span = 0.5) +
-  #
-  # geom_smooth(aes(fecha, tmax_norm), span = 0.5) +
-  # geom_smooth(aes(fecha, tmin_norm), span = 0.5) +
+  geom_smooth(aes(fecha, tmax_hist), span = 0.5) +
+
+  geom_smooth(aes(fecha, tmax_norm), span = 0.5) +
+  geom_smooth(aes(fecha, tmin_norm), span = 0.5) +
 
   facet_wrap(vars(nombre_ema), scales = "free_y")
 

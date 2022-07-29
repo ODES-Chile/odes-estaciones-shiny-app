@@ -76,6 +76,14 @@ destaciones <- destaciones |>
     nombre_estacion_largo = str_glue(" {region} - {nombre_estacion} - ({latitud}, {longitud}) ")
   )
 
+fechas_min_max <- tbl(sql_con(), parametros$tabla_datos) |>
+  summarise(min(fecha_hora), max(fecha_hora)) |>
+  collect() |>
+  gather() |>
+  pull(value) |>
+  lubridate::ceiling_date(unit = "month")
+
+
 # data        |> count(red)
 # destaciones |> count(red)
 
@@ -127,26 +135,38 @@ opt_estaciones <- destaciones |>
   deframe()
 
 # inputs salón ------------------------------------------------------------
+las_63 <- unique(pull(readRDS("data/nyt_temp_historicos.rds"), station_id))
+
 opt_estaciones_nyt <- destaciones |>
-  filter(station_id %in% unique(pull(readRDS("data/nyt_temp_historicos.rds"), station_id))) |>
+  filter(station_id %in% las_63) |>
   select(nombre_estacion_largo, station_id) |>
   deframe()
 
-# inputs descarga datos ---------------------------------------------------
-opt_estaciones_datos <- destaciones |>
-  select(nombre_estacion_largo, station_id) |>
-  deframe()
-
-fechas_min_max <- tbl(sql_con(), parametros$tabla_datos) |>
+fechas_min_max_63 <- tbl(sql_con(), parametros$tabla_datos) |>
+  filter(station_id %in% las_63) |>
   summarise(min(fecha_hora), max(fecha_hora)) |>
   collect() |>
   gather() |>
   pull(value) |>
   lubridate::ceiling_date(unit = "month")
 
+opt_salon_yrs <- seq(min(year(fechas_min_max_63)), max(year(fechas_min_max_63)))
+
+# inputs descarga datos ---------------------------------------------------
+opt_estaciones_datos <- destaciones |>
+  select(nombre_estacion_largo, station_id) |>
+  deframe()
+
 opt_estaciones_meses <- seq.Date(fechas_min_max[1], fechas_min_max[2], by = "month") |>
   format("%Y/%m")
 
 opt_estaciones_meses
 
+
+# input opciones ----------------------------------------------------------
+opt_opts_leafletproviders <- c("CartoDB.Positron", "Esri.WorldImagery", "Esri.WorldTopoMap")
+
+opt_opts_yrsdata <- seq(year(fechas_min_max[1]), year(fechas_min_max[2]))
+
+# end ---------------------------------------------------------------------
 cli::cli_h1("End global.R")

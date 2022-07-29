@@ -80,6 +80,15 @@ page_navbar(
           multiple = FALSE,
           width = "100%"
         ),
+
+        sliderTextInput(
+          inputId = "salon_yrs",
+          label = "Rango de fechas a mostrar",
+          choices = opt_salon_yrs,
+          selected = max(opt_salon_yrs),
+          width = "100%"
+        ),
+
         fluidRow(
           column(width = 10, highchartOutput("chart_nyt", width = "100%", height = 700)),
           column(width =  2, highchartOutput("chart_chi", width = "100%", height = 700))
@@ -150,11 +159,23 @@ page_navbar(
               "leafletprov",
               label = NULL,
               inline = TRUE,
-              choices = c("CartoDB.Positron", "Esri.WorldImagery", "Esri.WorldTopoMap")
+              choices = opt_opts_leafletproviders
             ),
             leafletOutput("map_demo")
           ),
-          # tabPanel("Otra opción")
+          tabPanel(
+            "Historia datos",
+            tags$br(),
+
+            sliderInput(
+              inputId = "opt_yrsdata",
+              label = "Rango de fechas a mostrar",
+              min = min(opt_opts_yrsdata),
+              max = max(opt_opts_yrsdata),
+              value = tail(opt_opts_yrsdata, 2),
+              width = "100%"
+              ),
+            )
         )
       )
     )

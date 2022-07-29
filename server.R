@@ -1,4 +1,4 @@
-# input <- list(variable = "temp_promedio_aire",  group = "Semanal", stat = "Promedio", station = 10)
+# input <- list(variable = "temp_promedio_aire",  group = "Semanal", stat = "Promedio", station = 20, opt_yrsdata = c(2021, 2022))
 
 function(input, output, session) {
 
@@ -62,8 +62,12 @@ function(input, output, session) {
     fceil <- fun_group[[input$group]]
     fstat <- fun_stat[[input$stat]]
 
+    minyr <- min(input$opt_yrsdata)
+    maxyr <- max(input$opt_yrsdata)
+
     data_transformada <- tbl(sql_con(), parametros$tabla_datos) |>
-      filter(year(fecha_hora) >= 2022) |>
+      filter(year(fecha_hora) <= maxyr) |>
+      filter(minyr            <= year(fecha_hora)) |>
       select(
         fecha_hora,
         valor = .data[[input$variable]],
@@ -88,7 +92,7 @@ function(input, output, session) {
     data_transformada
 
   }) |>
-    bindCache(input$group, input$stat, input$variable)
+    bindCache(input$group, input$stat, input$variable, input$opt_yrsdata)
 
   # filtra data_transformada por la estacion
   # para el mini chart
@@ -288,7 +292,7 @@ function(input, output, session) {
 
   # salon -------------------------------------------------------------------
   output$chart_nyt <- renderHighchart({
-    nyt_chart(input$station_nyt)
+    nyt_chart(input$station_nyt, input$salon_yrs)
   })
 
   output$chart_chi <- renderHighchart({
