@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>202208-presentacion-plataforma.knit</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Joshua Kunst Fuentes" />
+    <meta name="date" content="2022-08-02" />
+    <script src="202208-presentacion-plataforma_files/header-attrs-2.14/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# <img src='imgs/odes-removebg-preview.png'/>
+]
+.subtitle[
+## Plataforma de visualzación ODES
+]
+.author[
+### Joshua Kunst Fuentes
+]
+.date[
+### 2022-08-02
+]
+
+---
+
+
+
+
+
+
+## Plataforma de Visualización ODES
+
+&lt;img src="imgs/odes-app.png" width="1789" /&gt;
+
+
+---
+
+## ¿Qué veremos?
+
+--- 
+
+- Características generales/particulares
+
+--
+
+- Secciones de la aplicación
+
+--
+
+- Datos que alimentan la plataforma
+
+--
+
+- Desarrollo adicionales
+
+
+--
+
+- Próximos pasos
+
+
+---
+class: center, middle, inverse
+
+# Características
+
+
+---
+
+## Características Generales
+
+--- 
+
+- Aplicación web para visualización de datos de estaciones meteorológicas
+
+--
+
+- Información histórica de estaciones de las redes RAN y DMC (actualmente)
+
+
+
+---
+
+## Características Particulares (e internas)
+
+--- 
+
+- Visualizador para presentar de forma simple y atractiva la información
+
+--
+
+- Secciones para distintos perfiles de usuarios: general, tomador de decisión, experto
+
+--
+
+- (Interna) Aplicación desarrollada con *R* usando el paquete *shiny*
+
+
+---
+class: center, middle, inverse
+
+# Secciones
+
+---
+
+## Secciones
+
+--- 
+
+Actualmente la aplicación posee:
+
+
+- Mapa
+
+- Salón de temperaturas y lluvias (nombre en desarrollo)
+
+- Descarga de datos
+
+- Configuración/Opciones
+
+
+---
+
+## Secciones: Mapa
+
+&lt;img src="imgs/odes-seccion-mapa.png" width="1685" /&gt;
+
+
+---
+
+## Secciones: Salón
+
+&lt;img src="imgs/odes-seccion-salon.png" width="1663" /&gt;
+
+
+---
+
+## Secciones: Datos
+
+&lt;img src="imgs/odes-seccion-datos.png" width="1685" /&gt;
+
+---
+
+## Secciones: Opciones
+
+&lt;img src="imgs/odes-seccion-configuracion.png" width="1685" /&gt;
+
+---
+class: center, middle, inverse
+
+# Datos
+
+---
+
+## Datos que alimentan plataforma: Estaciones
+
+.pull-left[
+
+
+Datos de 531 estaciones. 
+
+
+|red | cantidad|
+|:---|--------:|
+|RAN |      417|
+|DMC |      114|
+
+
+]
+
+.pull-right[
+![](202208-presentacion-plataforma_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+]
+
+---
+
+## Datos que alimentan plataforma: RAN
+
+![](202208-presentacion-plataforma_files/figure-html/unnamed-chunk-9-1.svg)&lt;!-- --&gt;
+
+API de agromet.cl 
+
+---
+
+## Datos que alimentan plataforma: DMC
+
+![](202208-presentacion-plataforma_files/figure-html/unnamed-chunk-10-1.svg)&lt;!-- --&gt;
+
+API de climatologia.meteochile.gob.cl
+
+---
+class: center, middle, inverse
+
+# Desarrollos Adicionales
+
+---
+
+## Desarrollos/creaciones Adicionales
+
+--- 
+
+Hemos desarrollado herramientas y procesos adicionales.
+
+
+- Paquete R *AgrometR* https://github.com/ODES-Chile/odes-chile
+
+- Proceso GHA para actualización de BBDD automática 
+
+- Creación de la organicación *ODES-Chile* en github
+
+---
+
+count: false
+ 
+## AgrometR
+.panel1-agrometdemo-auto[
+
+```r
+*library(agrometR)
+```
+]
+ 
+.panel2-agrometdemo-auto[
+
+]
+
+---
+count: false
+ 
+## AgrometR
+.panel1-agrometdemo-auto[
+
+```r
+library(agrometR)
+
+*get_agro_data(
+* 1:4,
+* "2022-06-01 01:00:00",
+* "2022-08-02 01:00:00"
+* )
+```
+]
+ 
+.panel2-agrometdemo-auto[
+
+```
+## # A tibble: 5,956 × 13
+##    station…¹ fecha_hora          temp_…² preci…³ humed…⁴ presi…⁵ radia…⁶ veloc…⁷
+##        &lt;int&gt; &lt;dttm&gt;                &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1         1 2022-06-01 01:00:00    NA        NA      NA     NA       NA      NA
+##  2         1 2022-06-01 02:00:00    NA        NA      NA     NA       NA      NA
+##  3         1 2022-06-01 03:00:00    10.5       0      69   1017        0       0
+##  4         1 2022-06-01 04:00:00    12         0      67   1016.       0       0
+##  5         1 2022-06-01 05:00:00    NA        NA      NA     NA       NA      NA
+##  6         1 2022-06-01 06:00:00    13.9       0      60   1017.       0       0
+##  7         1 2022-06-01 07:00:00    NA        NA      NA     NA       NA      NA
+##  8         1 2022-06-01 08:00:00    NA        NA      NA     NA       NA      NA
+##  9         1 2022-06-01 09:00:00    NA        NA      NA     NA       NA      NA
+## 10         1 2022-06-01 10:00:00    NA        NA      NA     NA       NA      NA
+## # … with 5,946 more rows, 5 more variables: temp_minima &lt;dbl&gt;,
+## #   temp_maxima &lt;dbl&gt;, direccion_del_viento &lt;dbl&gt;, grados_dia &lt;dbl&gt;,
+## #   horas_frio &lt;dbl&gt;, and abbreviated variable names ¹​station_id,
+## #   ²​temp_promedio_aire, ³​precipitacion_horaria, ⁴​humed_rel_promedio,
+## #   ⁵​presion_atmosferica, ⁶​radiacion_solar_max, ⁷​veloc_max_viento
+## # ℹ Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names
+```
+]
+
+---
+count: false
+ 
+## AgrometR
+.panel1-agrometdemo-auto[
+
+```r
+library(agrometR)
+
+get_agro_data(
+  1:4,
+  "2022-06-01 01:00:00",
+  "2022-08-02 01:00:00"
+  ) |&gt;
+* mutate(station_id = factor(station_id))
+```
+]
+ 
+.panel2-agrometdemo-auto[
+
+```
+## # A tibble: 5,956 × 13
+##    station…¹ fecha_hora          temp_…² preci…³ humed…⁴ presi…⁵ radia…⁶ veloc…⁷
+##    &lt;fct&gt;     &lt;dttm&gt;                &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 1         2022-06-01 01:00:00    NA        NA      NA     NA       NA      NA
+##  2 1         2022-06-01 02:00:00    NA        NA      NA     NA       NA      NA
+##  3 1         2022-06-01 03:00:00    10.5       0      69   1017        0       0
+##  4 1         2022-06-01 04:00:00    12         0      67   1016.       0       0
+##  5 1         2022-06-01 05:00:00    NA        NA      NA     NA       NA      NA
+##  6 1         2022-06-01 06:00:00    13.9       0      60   1017.       0       0
+##  7 1         2022-06-01 07:00:00    NA        NA      NA     NA       NA      NA
+##  8 1         2022-06-01 08:00:00    NA        NA      NA     NA       NA      NA
+##  9 1         2022-06-01 09:00:00    NA        NA      NA     NA       NA      NA
+## 10 1         2022-06-01 10:00:00    NA        NA      NA     NA       NA      NA
+## # … with 5,946 more rows, 5 more variables: temp_minima &lt;dbl&gt;,
+## #   temp_maxima &lt;dbl&gt;, direccion_del_viento &lt;dbl&gt;, grados_dia &lt;dbl&gt;,
+## #   horas_frio &lt;dbl&gt;, and abbreviated variable names ¹​station_id,
+## #   ²​temp_promedio_aire, ³​precipitacion_horaria, ⁴​humed_rel_promedio,
+## #   ⁵​presion_atmosferica, ⁶​radiacion_solar_max, ⁷​veloc_max_viento
+## # ℹ Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names
+```
+]
+
+---
+count: false
+ 
+## AgrometR
+.panel1-agrometdemo-auto[
+
+```r
+library(agrometR)
+
+get_agro_data(
+  1:4,
+  "2022-06-01 01:00:00",
+  "2022-08-02 01:00:00"
+  ) |&gt;
+  mutate(station_id = factor(station_id)) |&gt;
+* ggplot(
+*   aes(fecha_hora,
+*       temp_promedio_aire,
+*       color = station_id
+*       )
+* )
+```
+]
+ 
+.panel2-agrometdemo-auto[
+![](202208-presentacion-plataforma_files/figure-html/agrometdemo_auto_04_output-1.svg)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+## AgrometR
+.panel1-agrometdemo-auto[
+
+```r
+library(agrometR)
+
+get_agro_data(
+  1:4,
+  "2022-06-01 01:00:00",
+  "2022-08-02 01:00:00"
+  ) |&gt;
+  mutate(station_id = factor(station_id)) |&gt;
+  ggplot(
+    aes(fecha_hora,
+        temp_promedio_aire,
+        color = station_id
+        )
+  ) +
+* geom_line(alpha = 0.4, size = 1.2)
+```
+]
+ 
+.panel2-agrometdemo-auto[
+![](202208-presentacion-plataforma_files/figure-html/agrometdemo_auto_05_output-1.svg)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+## AgrometR
+.panel1-agrometdemo-auto[
+
+```r
+library(agrometR)
+
+get_agro_data(
+  1:4,
+  "2022-06-01 01:00:00",
+  "2022-08-02 01:00:00"
+  ) |&gt;
+  mutate(station_id = factor(station_id)) |&gt;
+  ggplot(
+    aes(fecha_hora,
+        temp_promedio_aire,
+        color = station_id
+        )
+  ) +
+  geom_line(alpha = 0.4, size = 1.2) +
+* geom_smooth(se = FALSE)
+```
+]
+ 
+.panel2-agrometdemo-auto[
+![](202208-presentacion-plataforma_files/figure-html/agrometdemo_auto_06_output-1.svg)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+## AgrometR
+.panel1-agrometdemo-auto[
+
+```r
+library(agrometR)
+
+get_agro_data(
+  1:4,
+  "2022-06-01 01:00:00",
+  "2022-08-02 01:00:00"
+  ) |&gt;
+  mutate(station_id = factor(station_id)) |&gt;
+  ggplot(
+    aes(fecha_hora,
+        temp_promedio_aire,
+        color = station_id
+        )
+  ) +
+  geom_line(alpha = 0.4, size = 1.2) +
+  geom_smooth(se = FALSE) +
+* facet_wrap(vars(station_id))
+```
+]
+ 
+.panel2-agrometdemo-auto[
+![](202208-presentacion-plataforma_files/figure-html/agrometdemo_auto_07_output-1.svg)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-agrometdemo-auto {
+  color: black;
+  width: 32.6666666666667%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-agrometdemo-auto {
+  color: black;
+  width: 65.3333333333333%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-agrometdemo-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+## Actualización BD por GithubActions
+
+--- 
+
+https://github.com/ODES-Chile/gha-odes-ddbb-update
+
+Proceso automático diario de actualización de datos
+
+
+- Descargar los últimos datos utilizando agrometR
+
+-- 
+
+- Envia a los datos a una BD (que es lo que la app usa)
+
+-- 
+
+- Genera un informe adicional de la cantidad de registros
+
+---
+class: center, middle, inverse
+
+# Próximos pasos
+
+---
+
+## Próximos pasos
+
+--- 
+
+Corto plazo:
+
+- Seguir mejorando la usabilidad de la aplicación
+- Mejorar respuesta de tiempos de la BD
+- Incoporar colores y tipografías del proyecto
+
+
+Mediano/largo plazo:
+
+- Incorporar resto de productos y análisis: raster, nieves, indicadores
+
+
+
+---
+class: center, middle, inverse
+
+# Demo time https://jbkunst.shinyapps.io/odes-chile/
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
