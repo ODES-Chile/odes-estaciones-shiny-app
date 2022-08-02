@@ -70,28 +70,35 @@ page_navbar(
     value = "salon",
     fluidRow(
       column(
-        width = 8,
-        offset = 2,
-
-        selectizeInput(
-          "station_nyt",
-          "Selecione estación a visualizar",
-          opt_estaciones_nyt,
-          multiple = FALSE,
-          width = "100%"
-        ),
-
-        sliderTextInput(
-          inputId = "salon_yrs",
-          label = "Rango de fechas a mostrar",
-          choices = opt_salon_yrs,
-          selected = max(opt_salon_yrs),
-          width = "100%"
-        ),
+        width = 10,
+        offset = 1,
 
         fluidRow(
-          column(width = 10, highchartOutput("chart_nyt", width = "100%", height = 700)),
-          column(width =  2, highchartOutput("chart_chi", width = "100%", height = 700))
+          column(
+            width = 8,
+            selectizeInput(
+              "station_nyt",
+              "Selecione estación a visualizar",
+              opt_estaciones_nyt,
+              multiple = FALSE,
+              width = "100%"
+              )
+            ),
+          column(
+            width = 4,
+            selectInput(
+              inputId = "salon_yrs",
+              label = "Año",
+              choices = rev(opt_salon_yrs),
+              selected = max(opt_salon_yrs),
+              width = "100%"
+              )
+            )
+          ),
+
+        fluidRow(
+          column(width = 12, highchartOutput("chart_nyt", width = "100%", height = 600)),
+          # column(width =  2, highchartOutput("chart_chi", width = "100%", height = 700))
           )
         )
       )
@@ -101,8 +108,8 @@ page_navbar(
     "Datos",
     fluidRow(
       column(
-        width = 8,
-        offset = 2,
+        width = 10,
+        offset = 1,
         tabsetPanel(
           type = "pills",
           tabPanel(
@@ -144,11 +151,11 @@ page_navbar(
     ),
   # opciones ----------------------------------------------------------------
   bslib::nav(
-    "Opciones",
+    "Configuración",
     fluidRow(
       column(
-        width = 8,
-        offset = 2,
+        width = 10,
+        offset = 1,
 
         tabsetPanel(
           type = "pills",
@@ -167,12 +174,15 @@ page_navbar(
             "Historia datos",
             tags$br(),
 
-            sliderInput(
+            sliderTextInput(
               inputId = "opt_yrsdata",
               label = "Rango de fechas a mostrar",
-              min = min(opt_opts_yrsdata),
-              max = max(opt_opts_yrsdata),
-              value = tail(opt_opts_yrsdata, 2),
+              choices = opt_opts_yrsdata,
+              selected  = tail(opt_opts_yrsdata, 2),
+              grid = TRUE,
+              # min = min(opt_opts_yrsdata),
+              # max = max(opt_opts_yrsdata),
+              # value = tail(opt_opts_yrsdata, 2),
               width = "100%"
               ),
             )
