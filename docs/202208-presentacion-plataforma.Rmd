@@ -244,13 +244,13 @@ ggplot(destaciones) +
 ## Datos que alimentan plataforma: RAN
 
 ```{r, fig.width = 12, fig.height = 5, dev = "svg"}
-readRDS("../../agrometR/dev/plot_hist_agromet.rds") +
-  scale_fill_viridis_c(begin = 0.05, end = 0.95, na.value = "transparent") + 
-  scale_x_date(breaks = "year", date_labels = "%Y") +
-  scale_y_discrete(labels = NULL, breaks = NULL) +
-  theme_minimal() +
-  theme(legend.position = "bottom", legend.key.width=unit(0.1,"npc")) +
-  labs(y = NULL, x = NULL, fill = NULL)
+# readRDS("../../agrometR/dev/plot_hist_agromet.rds") +
+#   scale_fill_viridis_c(begin = 0.05, end = 0.95, na.value = "transparent") + 
+#   scale_x_date(breaks = "year", date_labels = "%Y") +
+#   scale_y_discrete(labels = NULL, breaks = NULL) +
+#   theme_minimal() +
+#   theme(legend.position = "bottom", legend.key.width=unit(0.1,"npc")) +
+#   labs(y = NULL, x = NULL, fill = NULL)
 ```
 
 API de agromet.cl 
@@ -260,13 +260,13 @@ API de agromet.cl
 ## Datos que alimentan plataforma: DMC
 
 ```{r, fig.width = 12, fig.height = 5, dev = "svg"}
-readRDS("../../agrometR/dev/plot_hist_dmc.rds") +
-  scale_fill_viridis_c(begin = 0.05, end = 0.95, na.value = "transparent") + 
-  scale_x_date(breaks = "year", date_labels = "%Y") +
-  scale_y_discrete(labels = NULL, breaks = NULL) +
-  theme_minimal() +
-  theme(legend.position = "bottom", legend.key.width=unit(0.1,"npc")) +
-  labs(y = NULL, x = NULL)
+# readRDS("../../agrometR/dev/plot_hist_dmc.rds") +
+#   scale_fill_viridis_c(begin = 0.05, end = 0.95, na.value = "transparent") + 
+#   scale_x_date(breaks = "year", date_labels = "%Y") +
+#   scale_y_discrete(labels = NULL, breaks = NULL) +
+#   theme_minimal() +
+#   theme(legend.position = "bottom", legend.key.width=unit(0.1,"npc")) +
+#   labs(y = NULL, x = NULL)
 ```
 
 API de climatologia.meteochile.gob.cl
