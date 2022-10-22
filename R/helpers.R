@@ -1,9 +1,43 @@
-# highcharter vacio
+# options highcharter -----------------------------------------------------
+newlang_opts <- getOption("highcharter.lang")
+
+newlang_opts$weekdays <- c("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
+newlang_opts$months <- c("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+                         "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+newlang_opts$shortMonths <- c("ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep",
+                              "oct", "nov", "dic")
+
+newlang_opts$loading      <- "Cargando información"
+newlang_opts$downloadCSV  <- "Descargar CSV"
+newlang_opts$downloadJPEG <- "Descargar JPEG"
+newlang_opts$downloadPDF  <- "Descargar PDF"
+newlang_opts$downloadPNG  <- "Descargar PNG"
+newlang_opts$downloadSVG  <- "Descargar SVG"
+newlang_opts$downloadXLS  <- "Descargar XLS"
+newlang_opts$printChart   <- "Imprimir gráfico"
+newlang_opts$viewFullscreen <- "Ver pantalla completa"
+
+newlang_opts$thousandsSep <- "."
+newlang_opts$decimalPoint <- ","
+
+
+options(
+  highcharter.lang = newlang_opts,
+  highcharter.theme = hc_theme_smpl(
+    color = parametros$color,
+    chart = list(style = list(fontFamily = parametros$font_family)),
+    series = list(marker = list(symbol = "circle"))
+    # colors = parametros$color
+  )
+)
+
 hc_void <- highchart() |>
   hc_add_series(data = NULL, id = "data", showInLegend = FALSE) |>
   hc_xAxis(type = "datetime") |>
   hc_credits(enabled = TRUE, text = "", href = "")
 
+
+# helpers -----------------------------------------------------------------
 dt_2_tstmp <- highcharter::datetime_to_timestamp
 
 sql_con <- function() {
@@ -76,11 +110,9 @@ nyt_chart <- function(id = 49, year = lubridate::year(Sys.Date())){
   axis[[2]]$labels <- list(format = "{value} mm")
   axis[[2]]$min <- 0
 
-  hc <- highchart()
+  hc <- highchart() |>
 
-  hc <- hc_yAxis_multiples(hc, axis)
-
-  hc <- hc |>
+    hc_yAxis_multiples(axis) |>
 
     hc_xAxis(
       type = "datetime",
@@ -94,11 +126,17 @@ nyt_chart <- function(id = 49, year = lubridate::year(Sys.Date())){
       headerFormat = as.character(tags$small("{point.x: %b %d}", tags$br()))
     ) |>
 
-    hc_plotOptions(series = list(borderWidth = 0, pointWidth = 4)) |>
+    hc_plotOptions(
+      series = list(
+        marker = list(symbol = "circle"),
+        pointWidth = 4
+        )
+      ) |>
 
     hc_add_series(
       data = transmute(dt, x = xdt, low = tmin_hist_smooth, high = tmax_hist_smooth),
-      color = "#D3D3D320",
+      color = "#D3D3D388",
+      # color = rgb(156, 156, 156, maxColorValue = 256),
       type = "arearange",
       name = "Temp. histórica"
     ) |>
@@ -113,8 +151,11 @@ nyt_chart <- function(id = 49, year = lubridate::year(Sys.Date())){
     hc_add_series(
       data = transmute(d, x = xdt, low = temp_minima, high = temp_maxima),
       type = "columnrange",
-      # color = parametros$color,
-      color = "#6592a0",
+      color = parametros$color,
+      borderColor = "#6592a0",
+      # color = "#6592a0",
+      # boderColor = "red",
+      borderWidth = 1,
       name = str_c("Temperatura ", year)
     )  |>
 
@@ -124,7 +165,7 @@ nyt_chart <- function(id = 49, year = lubridate::year(Sys.Date())){
       hcaes(x, y, group = m),
       name = "Precipitación acumulada mensual",
       color = "#008ED0",
-      lineWidth = 1,
+      lineWidth = 1.2,
       yAxis = 1,
       fillColor = "#EBEAE2",
       id = c("p", rep(NA, nmeses - 1)),
@@ -142,6 +183,8 @@ nyt_chart <- function(id = 49, year = lubridate::year(Sys.Date())){
       linkedTo = c(NA, rep("np", 11)),
       lineWidth = 1
     )
+
+  hc
 
   cli::cli_h3(str_glue("nyt_chart: ready!"))
 

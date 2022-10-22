@@ -6,7 +6,12 @@ function(input, output, session) {
   # mapa principal
   output$map <- renderLeaflet({
 
-    leaflet(options = leafletOptions(zoomControl = FALSE)) |>
+    leaflet(
+      options = leafletOptions(
+        attributionControl=FALSE,
+        zoomControl = FALSE
+        )
+      ) |>
       # addTiles() |>
       addProviderTiles(providers$CartoDB.Positron) |>
       # addTiles(
@@ -36,12 +41,19 @@ function(input, output, session) {
   # reactivo de informacion de variable seleccionada
   data_variable <- reactive({
 
-    input$variable
+    nmvar <- names(opt_variable[opt_variable == input$variable])
+    nmvar <- nmvar |>
+      str_split(" ") |>
+      unlist() |>
+      first()
+
 
     data_variable <- ddefvars |>
+      filter(str_detect(Description, nmvar)) |>
       slice(1) |>
       # filter(Name == input$variable) |>
-      as.list()
+      gather(k, v) |>
+      deframe()
 
     data_variable
 
@@ -168,7 +180,7 @@ function(input, output, session) {
 
     colorData <- data_markers[["valor"]]
 
-    pal <- colorBin("viridis", colorData, 5, pretty = TRUE)
+    pal <- colorBin(data_variable$cols, colorData, 10, pretty = TRUE)
 
     # radius <- scales::rescale(data_markers[["valor"]], to = c(1000, 20000))
 
@@ -271,6 +283,8 @@ function(input, output, session) {
     highchartProxy("chart") |>
       hcpxy_update_series(
         id = "data",
+        lineWidth = 1,
+        states = list(hover = list(lineWidthPlus = 0)),
         data = list_parse2(datos),
         color = parametros$color,
         name = data_variable$Description

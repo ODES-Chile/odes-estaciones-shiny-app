@@ -53,13 +53,15 @@ page_navbar(
             "input.showchart",
             # "hchart va en 2do contitaion panel",
             highchartOutput("chart", width = "100%", height = "250px"),
-            actionButton("detalle_estacion", label = "Ver detalle estacion", class = "btn-sm")
+
+            # actionButton("detalle_estacion", label = "Ver detalle estacion", class = "btn-sm")
+
           ),
         )
       ),
 
       tags$div(id="cite",
-        "Informacion de Institución Importante ", tags$em("ODES., 2021-2022"), " by Equipo ODES."
+        "", tags$span("ODES, 2021-2022"), "."
       )
     )
   ),

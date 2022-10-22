@@ -13,20 +13,20 @@ library(lubridate)
 library(RPostgres)
 library(pool)
 
-# OTHER
+# OTHERS
 library(cli)
 
 cli::cli_h1("Start global.R")
 
-source("R/helpers.R")
-
 # options -----------------------------------------------------------------
 parametros <- list(
   color = "#236478",
-  font_family = "IBM Plex Sans",
+  font_family = "Raleway",
   tabla_datos = "estaciones_datos",
   tabla_estaciones = "estaciones"
 )
+
+source("R/helpers.R")
 
 theme_odes <-  bs_theme(
   # version = version_default(),
@@ -36,20 +36,6 @@ theme_odes <-  bs_theme(
   # primary = "black",
   # bootswatch = "yeti",
   base_font = font_google(parametros$font_family)
-)
-
-langs <- getOption("highcharter.lang")
-
-# langs$loading <- "<i class='fas fa-circle-notch fa-spin fa-4x'></i>"
-langs$loading <- "Cargando información"
-
-options(
-  highcharter.lang = langs,
-  highcharter.theme = hc_theme_smpl(
-    color = parametros$color,
-    chart = list(style = list(fontFamily = parametros$font_family))
-    # colors = parametros$color
-  )
 )
 
 # data --------------------------------------------------------------------
@@ -73,7 +59,8 @@ destaciones <- destaciones |>
   mutate(
     latitud  = round(latitud, 3),
     longitud = round(longitud, 3),
-    nombre_estacion_largo = str_glue(" {region} - {nombre_estacion} - ({latitud}, {longitud}) ")
+    nombre_estacion_largo        = str_glue("{region} - {nombre_estacion} ({latitud}, {longitud}), red {red}"),
+    nombre_estacion_no_tan_largo = str_glue("{nombre_estacion} ({latitud}, {longitud}), red {red}")
   )
 
 fechas_min_max <- tbl(sql_con(), parametros$tabla_datos) |>
@@ -90,19 +77,15 @@ fechas_min_max <- tbl(sql_con(), parametros$tabla_datos) |>
 
 # inputs main -------------------------------------------------------------
 opt_variable <- c(
-  "temp_promedio_aire",
-  "temp_minima",
-  "temp_maxima",
-  "precipitacion_horaria",
-  "humed_rel_promedio",
-  "presion_atmosferica",
-  "radiacion_solar_max",
-  "veloc_max_viento"
-  ) |>
-  as_tibble() |>
-  mutate(desc = snakecase::to_sentence_case(value)) |>
-  select(desc, value) |>
-  deframe()
+  "Temperatura promedio aire" = "temp_promedio_aire",
+  "Temperatura mínima"        =  "temp_minima",
+  "Temperatura máxima"        = "temp_maxima",
+  "Precipitación horaria"     = "precipitacion_horaria",
+  "Humedad relativa promedio" = "humed_rel_promedio",
+  "Presión atomsférica"       = "presion_atmosferica",
+  "Radiación solar máxima"    = "radiacion_solar_max",
+  "Velocidad máxima del viento" = "veloc_max_viento"
+  )
 
 opt_variable
 
@@ -131,7 +114,7 @@ opt_stat <- names(fun_stat)
 opt_stat
 
 opt_estaciones <- destaciones |>
-  select(nombre_estacion, station_id) |>
+  select(nombre_estacion_no_tan_largo, station_id) |>
   deframe()
 
 # inputs salón ------------------------------------------------------------
