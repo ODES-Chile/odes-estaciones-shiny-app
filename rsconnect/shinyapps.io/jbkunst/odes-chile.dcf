@@ -5,9 +5,9 @@ account: jbkunst
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6666905
-bundleId: 6430982
+bundleId: 6430992
 url: https://jbkunst.shinyapps.io/odes-chile/
-when: 1666495648.42459
-lastSyncTime: 1666495648.4246
+when: 1666496210.90178
+lastSyncTime: 1666496210.9018
 asMultiple: FALSE
 asStatic: FALSE
