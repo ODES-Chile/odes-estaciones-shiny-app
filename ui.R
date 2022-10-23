@@ -10,8 +10,8 @@ page_navbar(
 
       tags$head(
         # Include our custom CSS
-        includeCSS("styles.css"),
-        includeScript("gomap.js")
+        includeCSS("www/css/styles.css"),
+        includeScript("www/js/gomap.js")
       ),
 
       # If not using custom CSS, set height of leafletOutput to a number instead of percent
