@@ -44,7 +44,7 @@ sql_con <- function() {
   pool::dbPool(
     drv = RPostgres::Postgres(),
     dbname = "shiny",
-    host = "137.184.9.247",
+    host = Sys.getenv("HOST"),
     user = "shiny",
     password = Sys.getenv("SHINY_PSQL_PWD")
   )
