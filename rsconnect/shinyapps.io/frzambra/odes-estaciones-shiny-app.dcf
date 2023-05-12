@@ -1,0 +1,13 @@
+name: odes-estaciones-shiny-app
+title: odes-estaciones-shiny-app
+username:
+account: frzambra
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9098699
+bundleId: 7211700
+url: https://frzambra.shinyapps.io/odes-estaciones-shiny-app/
+when: 1683924820.87023
+lastSyncTime: 1683924820.87024
+asMultiple: FALSE
+asStatic: FALSE

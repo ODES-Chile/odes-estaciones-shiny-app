@@ -8,18 +8,46 @@ function(input, output, session) {
 
     leaflet(
       options = leafletOptions(
-        attributionControl=FALSE,
+        attributionControl = FALSE,
         zoomControl = FALSE
+      )
+    ) |>
+
+      addProviderTiles(providers$CartoDB.Positron,  group = "CartoDB") |>
+      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI WI") |>
+      addProviderTiles(providers$Esri.WorldTopoMap, group = "ESRI WTM") |>
+
+      addLayersControl(
+        baseGroups = c("CartoDB", "ESRI WI", "ESRI WTM"),
+        position   = "bottomright",
+        options = layersControlOptions(collapsed = FALSE)
+      ) |>
+      htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
+      setView(lng =  -70.64827, lat = -33.45694, zoom = 5) |>
+      leafem::addLogo(
+        img = "https://odes-chile.org/img/logo.png",
+        src= "remote",
+        position = "bottomleft",
+        offset.x = 5,
+        offset.y = 5,
+      ) |>
+      leaflet.extras::addSearchOSM(
+        options = leaflet.extras::searchOptions(
+          textErr = "Ubicación no encontrada",
+          textCancel = "Cancelar",
+          textPlaceholder = "Buscar...",
+          position = "bottomright"
         )
       ) |>
-      # addTiles() |>
-      addProviderTiles(providers$CartoDB.Positron) |>
-      # addTiles(
-      #   urlTemplate = "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
-      #   attribution = '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      # ) |>
-      htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
-      setView(lng =  -70.64827, lat = -33.45694, zoom = 6)
+      addEasyButton(
+        easyButton(
+          position = "bottomright",
+          icon = "fa-crosshairs",
+          title = "Mi ubicación",
+          onClick = JS("function(btn, map){ map.locate({setView: true}); }")
+        )
+      )
+
   })
 
   # mini grafico

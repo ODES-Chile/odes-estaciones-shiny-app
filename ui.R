@@ -23,41 +23,57 @@ page_navbar(
         class = "panel panel-default",
         fixed = TRUE, draggable = FALSE,
         width = "auto", height = "auto",
-        top = 77 + 10, left = 10,
+        top = 56 + 10, left = 10,
         right = "auto", bottom = "auto",
 
-        # h6("Panel de control"),
         tags$br(),
 
-        selectInput("variable", tags$small("Variable"), opt_variable),
-        selectInput("group", tags$small("Agrupación temporal"), opt_group, selected = "Diaria"),
-        selectInput("stat", tags$small("Estadístico (cálculo)"), opt_stat),
+        conditionalPanel(
+          "input.showpanel",
 
-        selectizeInput(
-          "station",
-          tags$small("Estación"),
-          opt_estaciones,
-          options = list(
-            placeholder = "Seleccionar estación",
-            onInitialize = I('function() { this.setValue(""); }')
+
+          selectInput("variable", tags$small("Variable"), opt_variable),
+          selectInput("group", tags$small("Agrupación temporal"), opt_group, selected = "Diaria"),
+          selectInput("stat", tags$small("Estadístico (cálculo)"), opt_stat),
+
+          selectizeInput(
+            "station",
+            tags$small("Estación"),
+            opt_estaciones,
+            options = list(
+              placeholder = "Seleccionar estación",
+              onInitialize = I('function() { this.setValue(""); }')
             )
           ),
 
-        conditionalPanel(
-          # "false",
-          "input.station != ''",
-          # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
-          checkboxInput("showchart", "Mostrar información histórica"),
-
           conditionalPanel(
-            "input.showchart",
-            # "hchart va en 2do contitaion panel",
-            highchartOutput("chart", width = "100%", height = "250px"),
+            # "false",
+            "input.station != ''",
+            # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
+            checkboxInput("showchart", "Mostrar información histórica"),
 
-            # actionButton("detalle_estacion", label = "Ver detalle estacion", class = "btn-sm")
+            conditionalPanel(
+              "input.showchart",
+              # "hchart va en 2do contitaion panel",
+              highchartOutput("chart", width = "100%", height = "250px"),
 
-          ),
+              # actionButton("detalle_estacion", label = "Ver detalle estacion", class = "btn-sm")
+
+            ),
+          )
+        ),
+
+        prettyToggle(
+          inputId = "showpanel",
+          value = TRUE,
+          label_on = tags$small("Esconder controles"),
+          label_off = tags$small("Mostrar controles"),
+          status_on = "primary",
+          status_off = "info",
+          icon_on = icon("caret-up"),
+          icon_off = icon("caret-up", class = "fa-rotate-180")
         )
+
       ),
 
       tags$div(id="cite",
