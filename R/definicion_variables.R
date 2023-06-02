@@ -28,7 +28,7 @@ ddefvars <-
         "milibares",
         "Grados Celcius",
         "Grados Celcius",
-        "Milí­metros"
+        "Milímetros"
       ),
       Symbol = c(
         "°C",

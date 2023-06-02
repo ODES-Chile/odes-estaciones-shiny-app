@@ -78,9 +78,9 @@ fechas_min_max <- tbl(sql_con(), parametros$tabla_datos) |>
 # inputs main -------------------------------------------------------------
 opt_variable <- c(
   "Temperatura promedio aire" = "temp_promedio_aire",
-  "Temperatura mínima"        =  "temp_minima",
+  "Temperatura mínima"        = "temp_minima",
   "Temperatura máxima"        = "temp_maxima",
-  "Precipitación horaria"     = "precipitacion_horaria",
+  "Precipitación"             = "precipitacion_horaria",
   "Humedad relativa promedio" = "humed_rel_promedio",
   "Presión atomsférica"       = "presion_atmosferica",
   "Radiación solar máxima"    = "radiacion_solar_max",
