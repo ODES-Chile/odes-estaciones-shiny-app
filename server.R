@@ -227,6 +227,9 @@ function(input, output, session) {
         color = "white",
         weight = 1,
 
+        # agrupando estaciones
+        clusterOptions = markerClusterOptions(),
+
         # radius = radius,
         # https://stackoverflow.com/a/43155126/829971
         label = ~lapply(data_markers$lbl, htmltools::HTML),
