@@ -1,7 +1,7 @@
 # navbarPage(
 page_navbar(
-  lang = "es",
   title  = tags$span("ODES Estaciones", class = "title"),
+  lang = "es",
   id = "nav",
   theme = theme_odes,
   # mapa --------------------------------------------------------------------
