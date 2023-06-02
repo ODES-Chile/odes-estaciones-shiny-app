@@ -1,4 +1,5 @@
 # input <- list(variable = "temp_promedio_aire",  group = "Semanal", stat = "Promedio", station = 20, opt_yrsdata = c(2021, 2022))
+# source("global.R")
 
 function(input, output, session) {
 
@@ -74,7 +75,6 @@ function(input, output, session) {
       str_split(" ") |>
       unlist() |>
       first()
-
 
     data_variable <- ddefvars |>
       filter(str_detect(Description, nmvar)) |>
@@ -308,10 +308,13 @@ function(input, output, session) {
       mutate(x = datetime_to_timestamp(x), y = round(y, 2)) |>
       arrange(x)
 
+    typechart <- ifelse(str_detect(data_variable$Description, "Precipi"), "column", "spline")
+
     highchartProxy("chart") |>
       hcpxy_update_series(
         id = "data",
         lineWidth = 1,
+        type = typechart,
         states = list(hover = list(lineWidthPlus = 0)),
         data = list_parse2(datos),
         color = parametros$color,
