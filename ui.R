@@ -1,10 +1,11 @@
 # navbarPage(
 page_navbar(
+  lang = "es",
   title  = tags$span("ODES Estaciones", class = "title"),
   id = "nav",
   theme = theme_odes,
   # mapa --------------------------------------------------------------------
-  bslib::nav(
+  bslib::nav_panel(
     "Mapa",
     div(class="outer",
 
@@ -83,7 +84,7 @@ page_navbar(
   ),
 
   # salon -------------------------------------------------------------------
-  bslib::nav(
+  bslib::nav_panel(
     "Salón",
     value = "salon",
     fluidRow(
@@ -122,7 +123,7 @@ page_navbar(
       )
   ),
   # datos -------------------------------------------------------------------
-  bslib::nav(
+  bslib::nav_panel(
     "Datos",
     fluidRow(
       column(
@@ -168,7 +169,7 @@ page_navbar(
       )
     ),
   # opciones ----------------------------------------------------------------
-  bslib::nav(
+  bslib::nav_panel(
     "Configuración",
     fluidRow(
       column(
