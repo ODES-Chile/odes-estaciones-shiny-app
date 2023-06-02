@@ -5,9 +5,9 @@ account: frzambra
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9098699
-bundleId: 7211700
+bundleId: 7268982
 url: https://frzambra.shinyapps.io/odes-estaciones-shiny-app/
-when: 1683924820.87023
-lastSyncTime: 1683924820.87024
+when: 1685132019.7278
+lastSyncTime: 1685132019.72781
 asMultiple: FALSE
 asStatic: FALSE

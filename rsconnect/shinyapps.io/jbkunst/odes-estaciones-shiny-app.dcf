@@ -5,10 +5,9 @@ account: jbkunst
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7476415
-bundleId: 6469725
+bundleId: 7268998
 url: https://jbkunst.shinyapps.io/odes-estaciones-shiny-app/
-when: 1667443606.15179
-lastSyncTime: 1667443606.1518
+when: 1685132297.08656
+lastSyncTime: 1685132297.08657
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: docs

@@ -290,7 +290,7 @@ function(input, output, session) {
       as.list()
 
     leafletProxy("map") |>
-      flyTo(lng = coords$longitud, lat = coords$latitud, zoom = 7)
+      flyTo(lng = coords$longitud, lat = coords$latitud, zoom = input$map_zoom)
 
   })
 
