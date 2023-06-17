@@ -252,6 +252,7 @@ function(input, output, session) {
         # "bottomleft",
         "topright",
         pal = pal,
+        na.label  = "No disponible",
         values = colorData,
         title = data_variable$Symbol,
         # labFormat = labelFormat(suffix = ),
