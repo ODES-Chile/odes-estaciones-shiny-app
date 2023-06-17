@@ -57,7 +57,8 @@ nyt_chart <- function(id = 49, year = lubridate::year(Sys.Date())){
 
   year <- as.numeric(year)
 
-  d <- tbl(sql_con(), "estaciones_datos") |>
+  # d <- tbl(sql_con(), "estaciones_datos") |>
+  d <- data_estaciones |>
     filter(station_id == id, year(fecha_hora) == year) |>
     select(fecha_hora, temp_promedio_aire, temp_minima, temp_maxima, precipitacion_horaria) |>
     collect() |>
