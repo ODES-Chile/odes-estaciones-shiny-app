@@ -1,7 +1,9 @@
-# input <- list(variable = "temp_promedio_aire",  group = "Semanal", stat = "Promedio", station = 20, opt_yrsdata = c(2021, 2022))
 # source("global.R")
+# input <- list(variable = "temp_promedio_aire", group = "Semanal", stat = "Promedio", station = 20, opt_yrsdata = c(2021, 2022))
 
 function(input, output, session) {
+
+  data_estaciones <- tbl(pool, parametros$tabla_datos)
 
   # main --------------------------------------------------------------------
   # mapa principal
@@ -14,19 +16,20 @@ function(input, output, session) {
       )
     ) |>
 
-      addProviderTiles(providers$CartoDB.Positron,  group = "CartoDB") |>
-      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI WI") |>
-      addProviderTiles(providers$Esri.WorldTopoMap, group = "ESRI WTM") |>
+      addProviderTiles(providers$CartoDB.Positron,  group = "Administrativo") |>
+      addProviderTiles(providers$Esri.WorldImagery, group = "Satélite") |>
+      addProviderTiles(providers$Esri.WorldTopoMap, group = "Topográfico") |>
 
       addLayersControl(
-        baseGroups = c("CartoDB", "ESRI WI", "ESRI WTM"),
+        baseGroups = c("Administrativo", "Satélite", "Topográfico"),
         position   = "bottomright",
         options = layersControlOptions(collapsed = FALSE)
       ) |>
       htmlwidgets::onRender("function(el, x) { L.control.zoom({ position: 'topright' }).addTo(this) }") |>
       setView(lng =  -70.64827, lat = -33.45694, zoom = 5) |>
       leafem::addLogo(
-        img = "https://odes-chile.org/img/logo.png",
+        # https://github.com/r-spatial/leafem/issues/16#issuecomment-1560516396
+        img = "https://raw.githubusercontent.com/ODES-Chile/odes-unidades-shiny-app/main/www/logo.png",
         src= "remote",
         position = "bottomleft",
         offset.x = 5,
@@ -105,7 +108,7 @@ function(input, output, session) {
     minyr <- min(input$opt_yrsdata)
     maxyr <- max(input$opt_yrsdata)
 
-    data_transformada <- tbl(sql_con(), parametros$tabla_datos) |>
+    data_transformada <- data_estaciones |>
       filter(year(fecha_hora) <= maxyr) |>
       filter(minyr            <= year(fecha_hora)) |>
       select(
@@ -210,26 +213,22 @@ function(input, output, session) {
 
     pal <- colorBin(data_variable$cols, colorData, 10, pretty = TRUE)
 
-    # radius <- scales::rescale(data_markers[["valor"]], to = c(1000, 20000))
-
-    leafletProxy("map", data = data_markers) |>
+    leafletProxy("map") |>
       clearShapes() |>
 
+    # leaflet() |>
+    #   addTiles() |>
       # provider
-      addProviderTiles(input$leafletprov) |>
-
       # addCircles(
       addCircleMarkers(
+        data = data_markers,
         ~longitud,
         ~latitud,
 
         stroke = TRUE,
         color = "white",
         weight = 1,
-
-        # agrupando estaciones
-        clusterOptions = markerClusterOptions(),
-
+        clusterOptions = markerClusterOptions(), # agrupando estaciones
         # radius = radius,
         # https://stackoverflow.com/a/43155126/829971
         label = ~lapply(data_markers$lbl, htmltools::HTML),
@@ -361,7 +360,7 @@ function(input, output, session) {
     dts_min <- lubridate::as_datetime(dts[1])
     dts_max <- lubridate::as_datetime(dts[2]) + months(1) - lubridate::seconds(1)
 
-    tbl(sql_con(), parametros$tabla_datos) |>
+    data_estaciones  |>
       filter(station_id  %in% sttns) |>
       filter(fecha_hora <= dts_max) |>
       filter(dts_min >= dts_min) |>
