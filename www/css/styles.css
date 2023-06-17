@@ -46,6 +46,9 @@ div.outer {
   font-size: 12px;
 }
 
+.leaflet-control{
+  font-family: 'Raleway';
+}
 
 /*
 input[type="number"] {
