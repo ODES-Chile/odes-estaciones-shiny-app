@@ -1,6 +1,13 @@
 # navbarPage(
 page_navbar(
-  title  = tags$span("ODES Estaciones", class = "title"),
+  title  = tags$span(
+    class = "title",
+    tags$a(
+      tags$img(src = "horizontal_SB_blanco.png", height = "30px", style = "margin-top: -5px"),
+      href = "https://odes-chile.org/"
+    ),
+    "Estaciones"
+  ),
   lang = "es",
   id = "nav",
   theme = theme_odes,
@@ -12,7 +19,8 @@ page_navbar(
       tags$head(
         # Include our custom CSS
         includeCSS("www/css/styles.css"),
-        includeScript("www/js/gomap.js")
+        includeScript("www/js/gomap.js"),
+        tags$link(href = "Isotip_gradiente_azul.png", rel = "icon")
       ),
 
       # If not using custom CSS, set height of leafletOutput to a number instead of percent
@@ -42,7 +50,7 @@ page_navbar(
             tags$small("Estación"),
             opt_estaciones,
             options = list(
-              placeholder = "Seleccionar estación",
+              placeholder = "",
               onInitialize = I('function() { this.setValue(""); }')
             )
           ),
@@ -51,11 +59,22 @@ page_navbar(
             # "false",
             "input.station != ''",
             # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
-            checkboxInput("showchart", "Mostrar información histórica"),
+            checkboxInput("showchart", tags$small("Mostrar información histórica")),
 
             conditionalPanel(
               "input.showchart",
               # "hchart va en 2do contitaion panel",
+              sliderTextInput(
+                inputId = "opt_yrsdata",
+                label =  tags$small("Fecha"),
+                choices = opt_opts_yrsdata,
+                selected  = tail(opt_opts_yrsdata, 2),
+                grid = TRUE,
+                # min = min(opt_opts_yrsdata),
+                # max = max(opt_opts_yrsdata),
+                # value = tail(opt_opts_yrsdata, 2),
+                width = "100%"
+              ),
               highchartOutput("chart", width = "100%", height = "250px"),
 
               # actionButton("detalle_estacion", label = "Ver detalle estacion", class = "btn-sm")
@@ -123,90 +142,78 @@ page_navbar(
       )
   ),
   # datos -------------------------------------------------------------------
-  bslib::nav_panel(
-    "Datos",
-    fluidRow(
-      column(
-        width = 10,
-        offset = 1,
-        tabsetPanel(
-          type = "pills",
-          tabPanel(
-            "Estaciones",
-            tags$br(),
-
-            selectizeInput(
-              "station_data_stations",
-              "Seleciones estaciones a descargar",
-              opt_estaciones_datos,
-              multiple = TRUE,
-              width = "100%",
-              options = list(
-                # maxOptions = 10,
-                placeholder = "Seleccionar estación(es)",
-                onInitialize = I('function() { this.setValue(""); }')
-              )
-            ),
-
-            conditionalPanel(
-              # "false",
-              "input.station_data_stations != ''",
-
-              sliderTextInput(
-                inputId = "station_data_date",
-                label = "Seleccione rango de fechas a descargar",
-                choices = opt_estaciones_meses,
-                selected = tail(opt_estaciones_meses, 2),
-                width = "100%"
-              ),
-              downloadButton("station_data_download", label = "Descargar", class = "btn")
-              )
-            ),
-          tabPanel("Shapes", "shapes"),
-          tabPanel("Rasters", "rasters")
-          ),
-        )
-      )
-    ),
+  # bslib::nav_panel(
+  #   "Datos",
+  #   fluidRow(
+  #     column(
+  #       width = 10,
+  #       offset = 1,
+  #       tabsetPanel(
+  #         type = "pills",
+  #         tabPanel(
+  #           "Estaciones",
+  #           tags$br(),
+  #
+  #           selectizeInput(
+  #             "station_data_stations",
+  #             "Seleciones estaciones a descargar",
+  #             opt_estaciones_datos,
+  #             multiple = TRUE,
+  #             width = "100%",
+  #             options = list(
+  #               # maxOptions = 10,
+  #               placeholder = "Seleccionar estación(es)",
+  #               onInitialize = I('function() { this.setValue(""); }')
+  #             )
+  #           ),
+  #
+  #           conditionalPanel(
+  #             # "false",
+  #             "input.station_data_stations != ''",
+  #
+  #             sliderTextInput(
+  #               inputId = "station_data_date",
+  #               label = "Seleccione rango de fechas a descargar",
+  #               choices = opt_estaciones_meses,
+  #               selected = tail(opt_estaciones_meses, 2),
+  #               width = "100%"
+  #             ),
+  #             downloadButton("station_data_download", label = "Descargar", class = "btn")
+  #             )
+  #           ),
+  #         tabPanel("Shapes", "shapes"),
+  #         tabPanel("Rasters", "rasters")
+  #         ),
+  #       )
+  #     )
+  #   ),
   # opciones ----------------------------------------------------------------
-  bslib::nav_panel(
-    "Configuración",
-    fluidRow(
-      column(
-        width = 10,
-        offset = 1,
-
-        tabsetPanel(
-          type = "pills",
-          tabPanel(
-            "Leaflet Providers",
-            tags$br(),
-            radioButtons(
-              "leafletprov",
-              label = NULL,
-              inline = TRUE,
-              choices = opt_opts_leafletproviders
-            ),
-            leafletOutput("map_demo")
-          ),
-          tabPanel(
-            "Historia datos",
-            tags$br(),
-
-            sliderTextInput(
-              inputId = "opt_yrsdata",
-              label = "Rango de fechas a mostrar",
-              choices = opt_opts_yrsdata,
-              selected  = tail(opt_opts_yrsdata, 2),
-              grid = TRUE,
-              # min = min(opt_opts_yrsdata),
-              # max = max(opt_opts_yrsdata),
-              # value = tail(opt_opts_yrsdata, 2),
-              width = "100%"
-              ),
-            )
-        )
-      )
-    )
-  )
+  # bslib::nav_panel(
+  #   "Configuración",
+  #   fluidRow(
+  #     column(
+  #       width = 10,
+  #       offset = 1,
+  #
+  #       tabsetPanel(
+  #         type = "pills",
+  #         tabPanel(
+  #           "Leaflet Providers",
+  #           tags$br(),
+  #           radioButtons(
+  #             "leafletprov",
+  #             label = NULL,
+  #             inline = TRUE,
+  #             choices = opt_opts_leafletproviders
+  #           ),
+  #           leafletOutput("map_demo")
+  #         ),
+  #         tabPanel(
+  #           "Historia datos",
+  #           tags$br()
+  #           )
+  #       )
+  #     )
+  #   )
+  # )
 )
