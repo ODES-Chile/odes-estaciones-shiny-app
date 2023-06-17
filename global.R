@@ -6,6 +6,7 @@ library(leaflet.providers)
 library(highcharter) # remotes::install_github("jbkunst/highcharter")
 library(shinyWidgets)
 library(bslib)
+library(classInt)
 
 # DATA
 library(tidyverse)
@@ -17,6 +18,19 @@ library(pool)
 library(cli)
 
 cli::cli_h1("Start global.R")
+
+pool <- dbPool(
+  drv = RPostgres::Postgres(),
+  dbname = "shiny",
+  host = Sys.getenv("HOST"),
+  user = "shiny",
+  password = Sys.getenv("SHINY_PSQL_PWD")
+)
+
+onStop(function() {
+  poolClose(pool)
+})
+
 
 # options -----------------------------------------------------------------
 parametros <- list(
@@ -33,7 +47,7 @@ theme_odes <-  bs_theme(
   version = 5,
   # bg = "white",
   # fg = "#236478",
-  # primary = "black",
+  primary = parametros$color,
   # bootswatch = "yeti",
   base_font = font_google(parametros$font_family)
 )
