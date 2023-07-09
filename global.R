@@ -32,24 +32,22 @@ onStop(function() {
 })
 
 
+source("R/helpers.R")
+
 # options -----------------------------------------------------------------
 parametros <- list(
   color = "#236478",
   font_family = "Raleway",
+  font_family_code = "Source Code Pro",
   tabla_datos = "estaciones_datos",
   tabla_estaciones = "estaciones"
 )
 
-source("R/helpers.R")
-
 theme_odes <-  bs_theme(
-  # version = version_default(),
   version = 5,
-  # bg = "white",
-  # fg = "#236478",
   primary = parametros$color,
-  # bootswatch = "yeti",
-  base_font = font_google(parametros$font_family)
+  base_font = font_google(parametros$font_family),
+  code_font = font_google(parametros$font_family_code)
 )
 
 # data --------------------------------------------------------------------

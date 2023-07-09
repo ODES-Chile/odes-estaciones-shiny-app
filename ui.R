@@ -1,4 +1,3 @@
-# navbarPage(
 page_navbar(
   title  = tags$span(
     class = "title",
@@ -8,100 +7,66 @@ page_navbar(
     ),
     "Estaciones"
   ),
-  lang = "es",
   id = "nav",
+  lang = "es",
   theme = theme_odes,
-  # mapa --------------------------------------------------------------------
-  bslib::nav_panel(
-    "Mapa",
-    div(class="outer",
-
-      tags$head(
-        # Include our custom CSS
-        includeCSS("www/css/styles.css"),
-        includeScript("www/js/gomap.js"),
-        tags$link(href = "Isotip_gradiente_azul.png", rel = "icon")
-      ),
-
-      # If not using custom CSS, set height of leafletOutput to a number instead of percent
-      leafletOutput("map", width="100%", height="100%"),
-
-      # Shiny versions prior to 0.11 should use class = "modal" instead.
-      absolutePanel(
-        id = "controls",
-        class = "panel panel-default",
-        fixed = TRUE, draggable = FALSE,
-        width = "auto", height = "auto",
-        top = 56 + 10, left = 10,
-        right = "auto", bottom = "auto",
-
-        tags$br(),
-
-        conditionalPanel(
-          "input.showpanel",
-
-
-          selectInput("variable", tags$small("Variable"), opt_variable),
-          selectInput("group", tags$small("Agrupación temporal"), opt_group, selected = "Diaria"),
-          selectInput("stat", tags$small("Estadístico (cálculo)"), opt_stat),
-
-          selectizeInput(
-            "station",
-            tags$small("Estación"),
-            opt_estaciones,
-            options = list(
-              placeholder = "",
-              onInitialize = I('function() { this.setValue(""); }')
-            )
-          ),
-
-          conditionalPanel(
-            # "false",
-            "input.station != ''",
-            # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
-            checkboxInput("showchart", tags$small("Mostrar información histórica")),
-
-            conditionalPanel(
-              "input.showchart",
-              # "hchart va en 2do contitaion panel",
-              sliderTextInput(
-                inputId = "opt_yrsdata",
-                label =  tags$small("Fecha"),
-                choices = opt_opts_yrsdata,
-                selected  = tail(opt_opts_yrsdata, 2),
-                grid = TRUE,
-                # min = min(opt_opts_yrsdata),
-                # max = max(opt_opts_yrsdata),
-                # value = tail(opt_opts_yrsdata, 2),
-                width = "100%"
-              ),
-              highchartOutput("chart", width = "100%", height = "250px"),
-
-              # actionButton("detalle_estacion", label = "Ver detalle estacion", class = "btn-sm")
-
-            ),
-          )
-        ),
-
-        prettyToggle(
-          inputId = "showpanel",
-          value = TRUE,
-          label_on = tags$small("Esconder controles"),
-          label_off = tags$small("Mostrar controles"),
-          status_on = "primary",
-          status_off = "info",
-          icon_on = icon("caret-up"),
-          icon_off = icon("caret-up", class = "fa-rotate-180")
-        )
-
-      ),
-
-      tags$div(id="cite",
-        "", tags$span("ODES, 2021-2022"), "."
+  fillable = TRUE,
+  fillable_mobile = TRUE,
+  # sidebar -----------------------------------------------------------------
+  sidebar = sidebar(
+    width = 400,
+    selectInput("variable", tags$small("Variable"), opt_variable),
+    selectInput("group", tags$small("Agrupación temporal"), opt_group, selected = "Diaria"),
+    selectInput("stat", tags$small("Estadístico (cálculo)"), opt_stat),
+    selectizeInput(
+      "station",
+      tags$small("Estación"),
+      opt_estaciones,
+      options = list(
+        placeholder = "",
+        onInitialize = I('function() { this.setValue(""); }')
       )
+    ),
+
+    conditionalPanel(
+      # "false",
+      "input.station != ''",
+      # checkboxInput("showchart", "Mostrar detalle estacion histórica"),
+      checkboxInput("showchart", tags$small("Mostrar información histórica")),
+
+      conditionalPanel(
+        "input.showchart",
+        # "hchart va en 2do contitaion panel",
+        sliderTextInput(
+          inputId = "opt_yrsdata",
+          label =  tags$small("Fecha"),
+          choices = opt_opts_yrsdata,
+          selected  = tail(opt_opts_yrsdata, 2),
+          grid = TRUE,
+          # min = min(opt_opts_yrsdata),
+          # max = max(opt_opts_yrsdata),
+          # value = tail(opt_opts_yrsdata, 2),
+          width = "100%"
+        ),
+        highchartOutput("chart", width = "100%", height = "250px"),
+
+        # actionButton("detalle_estacion", label = "Ver detalle estacion", class = "btn-sm")
+
+      ),
     )
   ),
-
+  # mapa --------------------------------------------------------------------
+  bslib::nav_panel(
+    title = "Mapa",
+    icon  = icon("map-location-dot"),
+    tags$head(
+      tags$link(href = "Isotip_gradiente_azul.png", rel = "icon"),
+      tags$script(src = "https://www.googletagmanager.com/gtag/js?id=G-CYG993XQRT", async = ""),
+      tags$script(src = "js/ga.js"),
+      includeCSS("www/css/styles.css"),
+    ),
+    leafletOutput("map", width="100%", height="100%")
+  ),
   # salon -------------------------------------------------------------------
   bslib::nav_panel(
     "Salón",

@@ -32,17 +32,17 @@ function(input, output, session) {
         img = "https://raw.githubusercontent.com/ODES-Chile/odes-unidades-shiny-app/main/www/logo.png",
         src= "remote",
         position = "bottomleft",
-        offset.x = 5,
+        offset.x = 15,
         offset.y = 5,
       ) |>
-      leaflet.extras::addSearchOSM(
-        options = leaflet.extras::searchOptions(
-          textErr = "Ubicación no encontrada",
-          textCancel = "Cancelar",
-          textPlaceholder = "Buscar...",
-          position = "bottomright"
-        )
-      ) |>
+      # leaflet.extras::addSearchOSM(
+      #   options = leaflet.extras::searchOptions(
+      #     textErr = "Ubicación no encontrada",
+      #     textCancel = "Cancelar",
+      #     textPlaceholder = "Buscar...",
+      #     position = "bottomright"
+      #   )
+      # ) |>
       addEasyButton(
         easyButton(
           position = "bottomright",
@@ -293,7 +293,7 @@ function(input, output, session) {
       as.list()
 
     leafletProxy("map") |>
-      flyTo(lng = coords$longitud, lat = coords$latitud, zoom = input$map_zoom)
+      setView(lng = coords$longitud, lat = coords$latitud, zoom = input$map_zoom)
 
   })
 
