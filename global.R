@@ -31,9 +31,6 @@ onStop(function() {
   poolClose(pool)
 })
 
-
-source("R/helpers.R")
-
 # options -----------------------------------------------------------------
 parametros <- list(
   color = "#236478",
@@ -42,6 +39,8 @@ parametros <- list(
   tabla_datos = "estaciones_datos",
   tabla_estaciones = "estaciones"
 )
+
+source("R/helpers.R")
 
 theme_odes <-  bs_theme(
   version = 5,
